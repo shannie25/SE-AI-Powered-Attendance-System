@@ -28,10 +28,16 @@ The AI-Powered Attendance Monitoring System uses facial recognition technology t
 ### 1. Use Case Diagram
 The Use Case Diagram shows how the AI-Powered Attendance System works with four main users — Student, Teacher, Administrator, and Parent/Guardian. Students register and scan their faces for attendance, teachers manage records and reports, administrators handle users and the AI model, while parents receive notifications.
 
-SE-AI-Powered-Attendance-System/UML/UseCaseDiagram.png
+![C:\SOFTENG-MAGSAYO\SE-AI-Powered-Attendance-System\UML\UseCaseDiagram.png](UML/UseCaseDiagram.png)
 
 ### 2. Class Diagram
 This class diagram represents the structure of our AI-Powered Attendance System.
 It shows the main classes such as Student, Teacher, Administrator, Parent/Guardian, AttendanceRecord, AIRecognitionSystem, NotificationSystem, and Database — and their relationships. The diagram highlights how data flows between components for recording attendance, sending notifications, and generating reports. It serves as a guide for system development and integration of all features.
 
 ![SE-AI-Powered-Attendance-System/UML/\[SOFT ENG\] CLASS DIAGRAM.jpg](<UML/Updated Class Diagram.png>)
+
+
+### 3. Use Case Description
+The Use Case Description explains how each actor (Student, Administrator, Teacher, and Parent/Guardian) interacts with the system. It defines the system’s main functions such as face registration, attendance scanning, report generation, and notification handling. These descriptions provide a detailed view of the system’s behavior in different user scenarios.
+
+C:\SOFTENG-MAGSAYO\SE-AI-Powered-Attendance-System\UML\UML Use Case Description_ Attendance System.pdf
