@@ -40,4 +40,12 @@ It shows the main classes such as Student, Teacher, Administrator, Parent/Guardi
 ### 3. Use Case Description
 The Use Case Description explains how each actor (Student, Administrator, Teacher, and Parent/Guardian) interacts with the system. It defines the system’s main functions such as face registration, attendance scanning, report generation, and notification handling. These descriptions provide a detailed view of the system’s behavior in different user scenarios.
 
-C:\SOFTENG-MAGSAYO\SE-AI-Powered-Attendance-System\UML\UML Use Case Description_ Attendance System.pdf
+[SE-AI-Powered-Attendance-System\UML\UML Use Case Description_ Attendance System.pdf](<UML/UML Use Case Description_ Attendance System.pdf>)
+
+## Team and Contributions
+
+| **Member** | **Role** | **Contributions** |
+|-------------|-----------|-------------------|
+| **Owen Robert Magsayo** | Team Leader | - Created and updated the **README.md** and full project **documentation**.<br>- Designed both the **Use Case Diagram** and **Class Diagram**.<br>- Consolidated and organized all files for submission. |
+| **Annie Rose Mamitag** | Team Member | - Created the **GitHub repository** for the project.<br>- Helped design both the **Use Case Diagram** and **Class Diagram**.<br>- Added the **Key Features** section in the **README.md**.<br>- Assisted in improving diagram layout and accuracy. |
+| **Norwejean Arnado** | Team Member | - Collaborated on both the **Use Case Diagram** and **Class Diagram**.<br>- Wrote the **Data Privacy and Security Measures**, **Compliance & Legal Framework**, and **Security Implementation** sections.<br>- Modified and refined the final **Class Diagram** design. |
