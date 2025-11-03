@@ -48,8 +48,8 @@ This design ensures **functional independence**, making the system more scalable
 
 ### Layers Description
 1. **Presentation Layer**
-  - This is the tablet interface used by students and teachers.
-  - Handles user interactions such as facial registration, attendance scanning, and report viewing.
+   - This is the tablet interface used by students and teachers.
+   - Handles user interactions such as facial registration, attendance scanning, and report viewing.
 
 2. **Application Layer**
    - Contains the **AI recognition module**, **attendance logic**, and business rules**.
