@@ -61,15 +61,7 @@ This design ensures **functional independence**, making the system more scalable
   
 ## Architectural Flow
 The system's overall data flow and interaction between components can be illustrated as follows:
-[Tablet Interface (Student/Teacher)]
-↓
-[AI Recognition Module / Application Logic]
-↓
-[Server / API Communication Layer]
-↓
-[Database (MySQL)]
-↑
-[Admin Dashboard / Reports]
+<pre> ``` [Tablet Interface (Student/Teacher)] ↓ [AI Recognition Module / Application Logic] ↓ [Server / API Communication Layer] ↓ [Database (MySQL)] ↑ [Admin Dashboard / Reports] ``` </pre>
 
 **Flow Explanation:**
 1. Students scan their faces using the tablet interface.  
