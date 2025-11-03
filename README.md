@@ -71,6 +71,8 @@ The system's overall data flow and interaction between components can be illustr
 [Database (MySQL)]
 ↑
 [Admin Dashboard / Reports]
+→
+[Parent/Guardian Notification (SMS)]
 ```
 
 **Flow Explanation:**
@@ -79,6 +81,10 @@ The system's overall data flow and interaction between components can be illustr
 3. If recognized, attendance is automatically marked in the database.  
 4. Teachers and administrators can access attendance data via the dashboard or reports.  
 5. The system ensures that all data is handled securely and locally during testing.
+6. Parent/Guardian will receive SMS updates when attendance is recorded or if a student is marked absent.
+
+> "In future versions, a **Parent Dashboard** may be added for detailed attendance tracking and analytics."
+
 
 ## Team and Contributions
 
