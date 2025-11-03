@@ -42,6 +42,42 @@ The Use Case Description explains how each actor (Student, Administrator, Teache
 
 [SE-AI-Powered-Attendance-System\UML\UML Use Case Description_ Attendance System.pdf](<UML/UML Use Case Description_ Attendance System.pdf>)
 
+## 4. System Architectural
+The **AI-Powered Attendance System** follows a **Client–Server Layered Architecture** that separates the system into three main layers: the **Presentation Layer**, **Application Layer**, and **Data Layer**.  
+This design ensures **functional independence**, making the system more scalable, maintainable, and secure.
+
+### Layers Description
+1. **Presentation Layer**
+  - This is the tablet interface used by students and teachers.
+  - Handles user interactions such as facial registration, attendance scanning, and report viewing.
+
+2. **Application Layer**
+   - Contains the **AI recognition module**, **attendance logic**, and business rules**.
+   - Processes input from the presentation layer and communicates with the database.
+  
+3. **Data Layer**
+   - Responsible for storing and managing data in the **MySQL Database**.
+   - Uses encryptioin and authentication to ensure secure data access and storage.
+  
+## Architectural Flow
+The system's overall data flow and interaction between components can be illustrated as follows:
+[Tablet Interface (Student/Teacher)]
+↓
+[AI Recognition Module / Application Logic]
+↓
+[Server / API Communication Layer]
+↓
+[Database (MySQL)]
+↑
+[Admin Dashboard / Reports]
+
+**Flow Explanation:**
+1. Students scan their faces using the tablet interface.  
+2. The AI module processes the image, generates a **face embedding**, and checks it against the database.  
+3. If recognized, attendance is automatically marked in the database.  
+4. Teachers and administrators can access attendance data via the dashboard or reports.  
+5. The system ensures that all data is handled securely and locally during testing.
+
 ## Team and Contributions
 
 | **Member** | **Role** | **Contributions** |
