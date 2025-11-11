@@ -1,0 +1,79 @@
+USE attendance_system;
+
+-- ----------------------------------------------------------- --
+-- TRIGGERS
+-- ----------------------------------------------------------- --
+
+-- Auto-send notification after attendance marked
+DELIMITER //
+
+CREATE TRIGGER trg_attendance_notification
+AFTER INSERT ON Attendance
+FOR EACH ROW
+BEGIN
+    -- Only send notification if student is Present or Late
+    IF NEW.status IN ('Present', 'Late') THEN
+        -- Insert notification for all active parents of this student
+        INSERT INTO Notification (parentID, studentID, message, notificationType, deliveryMethod)
+        SELECT 
+            pg.parentID,
+            NEW.studentID,
+            CONCAT(
+                'Your child ',
+                s.firstName, ' ', s.lastName,
+                ' has been marked ', NEW.status,
+                ' for course ', c.courseName,
+                ' at ', NEW.timeIn
+            ),
+            CASE 
+                WHEN NEW.status = 'Late' THEN 'Late'
+                ELSE 'Attendance'
+            END,
+            pg.preferredContact
+        FROM Parent_Guardian pg
+        JOIN Student s ON pg.studentID = s.studentID
+        JOIN Course c ON NEW.courseID = c.courseID
+        WHERE pg.studentID = NEW.studentID AND pg.isActive = TRUE;
+    END IF;
+END//
+
+-- LOG ALL ATTENDANCE MODIFICATIONS 
+CREATE TRIGGER trg_audit_attendance_insert
+AFTER INSERT ON Attendance
+FOR EACH ROW
+BEGIN
+    INSERT INTO Audit_Log (userID, userType, action, tableName, recordID, status, details)
+    VALUES (
+        COALESCE(NEW.recordedBy, 'SYSTEM'),
+        CASE 
+            WHEN NEW.recordedBy LIKE 'TCH-%' THEN 'Teacher'
+            WHEN NEW.recordedBy LIKE 'ADM-%' THEN 'Admin'
+            ELSE 'Student'
+        END,
+        'INSERT',
+        'Attendance',
+        NEW.attendanceID,
+        'Success',
+        JSON_OBJECT(
+            'studentID', NEW.studentID,
+            'courseID', NEW.courseID,
+            'status', NEW.status,
+            'verificationMethod', NEW.verificationMethod
+        )
+    );
+END//
+
+DELIMITER ;
+
+-- LOG ALL LOG-IN ATTEMPTS
+DELIMITER //
+CREATE TRIGGER trg_after_admin_login
+AFTER UPDATE ON Administrator
+FOR EACH ROW
+BEGIN
+    IF NEW.lastLogin != OLD.lastLogin OR OLD.lastLogin IS NULL THEN
+        INSERT INTO Audit_Log (userID, userType, action, tableName, recordID, status)
+        VALUES (NEW.username, 'Admin', 'LOGIN', 'Administrator', NEW.adminID, 'Success');
+    END IF;
+END //
+DELIMITER ;
