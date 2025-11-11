@@ -1,0 +1,53 @@
+USE attendance_system;
+-- ----------------------------------------------------------- --
+-- VIEWS FOR REPORTING
+-- ----------------------------------------------------------- --
+
+-- STUDENT ATTENDANCE RECORD
+CREATE VIEW vw_student_attendance_record AS
+SELECT 
+    s.studentID,
+    CONCAT(s.firstName, ' ', s.lastName) as studentName,
+    s.course,
+    s.yearLevel,
+    c.courseName,
+    a.date,
+    a.timeIn,
+    a.status,
+    a.verificationMethod
+FROM Student s
+JOIN Attendance a ON s.studentID = a.studentID
+JOIN Course c ON a.courseID = c.courseID;
+
+-- DAILY ATTENDANCE SUMMARY
+CREATE VIEW vw_daily_attendance_summary AS
+SELECT 
+    a.date,
+    c.courseName,
+    c.courseCode,
+    COUNT(*) as total_students,
+    SUM(CASE WHEN a.status = 'Present' THEN 1 ELSE 0 END) as present_count,
+    SUM(CASE WHEN a.status = 'Late' THEN 1 ELSE 0 END) as late_count,
+    SUM(CASE WHEN a.status = 'Absent' THEN 1 ELSE 0 END) as absent_count,
+    ROUND(SUM(CASE WHEN a.status = 'Present' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) as attendance_rate
+FROM Attendance a
+JOIN Course c ON a.courseID = c.courseID
+GROUP BY a.date, c.courseID;
+
+-- PARENT NOTIFICATION SUMMARY
+CREATE OR REPLACE VIEW vw_parent_notifications AS
+SELECT 
+    pg.parentID,
+    CONCAT(pg.firstName, ' ', pg.lastName) AS parentName,
+    CONCAT(s.firstName, ' ', s.lastName) AS studentName,
+    s.studentID,
+    pg.contactNumber,
+    COUNT(n.notificationID) AS totalNotifications,
+    COUNT(CASE WHEN n.deliveryStatus = 'Delivered' THEN 1 END) AS delivered,
+    COUNT(CASE WHEN n.deliveryStatus = 'Failed' THEN 1 END) AS failed,
+    MAX(n.sentDate) AS lastNotificationDate
+FROM Parent_Guardian pg
+JOIN Student s ON pg.studentID = s.studentID
+LEFT JOIN Notification n ON pg.parentID = n.parentID
+GROUP BY pg.parentID, pg.firstName, pg.lastName, s.firstName, s.lastName, s.studentID, pg.contactNumber;
+
