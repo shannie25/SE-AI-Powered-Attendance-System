@@ -23,6 +23,24 @@ The AI-Powered Attendance Monitoring System uses facial recognition technology t
 - admin can generate class and student reports
 - Central database with secure access per role
 
+## Backend Overview
+
+The backend is built using **Node.js** and **Express.js**, located in `src/Backend/`. It handles all API endpoints for face registration, attendance logging, student management, and future dashboard integration.
+
+### Structure:
+- `controllers/` — Contains logic for handling attendance, recognition, and student data.
+- `routes/` — Defines API endpoints for face recognition, attendance, and student registration.
+- `server.js` — Initializes the Express server and middleware.
+- `data/` — Placeholder for future database integration or JSON-based logging.
+
+### Key Endpoints:
+- `POST /students` — Register a new student.
+- `POST /recognize` — Submit face embedding for recognition.
+- `POST /attendance` — Log attendance manually or via recognition.
+- `GET /attendance` — Retrieve attendance records.
+
+> The backend is modular and ready for integration with a Figma-ready frontend dashboard.
+
 ## UML Diagrams
 
 ### 1. Use Case Diagram
@@ -91,5 +109,5 @@ The system's overall data flow and interaction between components can be illustr
 | **Member** | **Role** | **Contributions** |
 |-------------|-----------|-------------------|
 | **Owen Robert Magsayo** | Team Leader | - Created and updated the **README.md** and full project **documentation**.<br>- Designed both the **Use Case Diagram** and **Class Diagram**.<br>- Consolidated and organized all files for submission.<br>- Created the **Procedural Design**. |
-| **Annie Rose Mamitag** | Team Member | - Created the **GitHub repository** for the project.<br>- Helped design both the **Use Case Diagram** and **Class Diagram**.<br>- Added the **Key Features** section in the **README.md**.<br>- Assisted in improving diagram layout and accuracy.<br>- Created the **Architectural Design Flow** and **UI Interface**. |
+| **Annie Rose Mamitag**  | Team Member    | - Created the GitHub repository.<br>- Designed diagrams and architectural flow.<br>- Added Key Features section.<br>- Created UI interface and backend folder structure.<br>**- Developed and modularized the backend using Express.js.**<br>**- Validated API endpoints and prepared for frontend integration.** |
 | **Norwejean Arnado** | Team Member | - Collaborated on both the **Use Case Diagram** and **Class Diagram**.<br>- Wrote the **Data Privacy and Security Measures**, **Compliance & Legal Framework**, and **Security Implementation** sections.<br>- Modified and refined the final **Class Diagram** design.<br>- Created the **Data Design** and database. |
