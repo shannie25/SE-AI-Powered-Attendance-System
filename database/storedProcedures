@@ -1,0 +1,94 @@
+USE attendance_system;
+-- ----------------------------------------------------------- --
+-- STORED PROCEDURES
+-- ----------------------------------------------------------- --
+
+
+-- MARK ATTENDANCE VIA FACIAL RECOGNITION
+DELIMITER //
+CREATE PROCEDURE sp_mark_attendance(
+    IN p_studentID VARCHAR(20),
+    IN p_courseID VARCHAR(20),
+    IN p_confidence DECIMAL(5,2)
+)
+BEGIN
+    DECLARE v_status VARCHAR(20);
+    DECLARE v_timeIn TIME;
+    DECLARE v_existingID INT;
+    
+    SET v_timeIn = CURTIME();
+    
+    
+    IF v_timeIn <= '08:15:00' THEN
+        SET v_status = 'Present';
+    ELSE
+        SET v_status = 'Late';
+    END IF;
+    
+    
+    SELECT attendanceID INTO v_existingID
+    FROM Attendance
+    WHERE studentID = p_studentID 
+      AND courseID = p_courseID 
+      AND date = CURDATE()
+    LIMIT 1;
+    
+    IF v_existingID IS NOT NULL THEN
+       
+        UPDATE Attendance 
+        SET timeIn = v_timeIn,
+            status = v_status,
+            confidence = p_confidence,
+            updatedAt = CURRENT_TIMESTAMP
+        WHERE attendanceID = v_existingID;
+    ELSE
+      
+        INSERT INTO Attendance (studentID, courseID, date, timeIn, status, verificationMethod, confidence)
+        VALUES (p_studentID, p_courseID, CURDATE(), v_timeIn, v_status, 'Facial Recognition', p_confidence);
+        
+        SET v_existingID = LAST_INSERT_ID();
+    END IF;
+    
+   
+    INSERT INTO Audit_Log (userID, userType, action, tableName, recordID, status)
+    VALUES (p_studentID, 'Student', 'MARK_ATTENDANCE', 'Attendance', v_existingID, 'Success');
+    
+    SELECT v_existingID AS attendanceID, v_status AS status;
+END //
+DELIMITER ;
+
+-- SEND NOTIFICATION TO PARENT
+DELIMITER //
+CREATE PROCEDURE sp_send_notification(
+    IN p_studentID VARCHAR(20),
+    IN p_message TEXT,
+    IN p_notificationType VARCHAR(20)
+)
+BEGIN
+    DECLARE done INT DEFAULT FALSE;
+    DECLARE v_parentID INT;
+    DECLARE v_preferredContact VARCHAR(20);
+    
+    DECLARE parent_cursor CURSOR FOR 
+        SELECT parentID, preferredContact 
+        FROM Parent_Guardian 
+        WHERE studentID = p_studentID AND isActive = TRUE;
+    
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+    
+    OPEN parent_cursor;
+    
+    read_loop: LOOP
+        FETCH parent_cursor INTO v_parentID, v_preferredContact;
+        IF done THEN
+            LEAVE read_loop;
+        END IF;
+        
+        
+        INSERT INTO Notification (parentID, studentID, message, notificationType, deliveryMethod)
+        VALUES (v_parentID, p_studentID, p_message, p_notificationType, v_preferredContact);
+    END LOOP;
+    
+    CLOSE parent_cursor;
+END //
+DELIMITER ;
