@@ -23,6 +23,24 @@ The AI-Powered Attendance Monitoring System uses facial recognition technology t
 - admin can generate class and student reports
 - Central database with secure access per role
 
+## Backend Overview
+
+The backend is built using **Node.js** and **Express.js**, located in `src/Backend/`. It handles all API endpoints for face registration, attendance logging, student management, and future dashboard integration.
+
+### Structure:
+- `controllers/` — Contains logic for handling attendance, recognition, and student data.
+- `routes/` — Defines API endpoints for face recognition, attendance, and student registration.
+- `server.js` — Initializes the Express server and middleware.
+- `data/` — Placeholder for future database integration or JSON-based logging.
+
+### Key Endpoints:
+- `POST /students` — Register a new student.
+- `POST /recognize` — Submit face embedding for recognition.
+- `POST /attendance` — Log attendance manually or via recognition.
+- `GET /attendance` — Retrieve attendance records.
+
+> The backend is modular and ready for integration with a Figma-ready frontend dashboard.
+
 ## UML Diagrams
 
 ### 1. Use Case Diagram
@@ -75,6 +93,105 @@ The system's overall data flow and interaction between components can be illustr
 [Parent/Guardian Notification (SMS)]
 ```
 
+## Procedural Design
+
+This procedural design flowchart illustrates the complete user flow of the AI-Powered Attendance Monitoring System, detailing how students, teachers, and administrators interact with the platform.
+It includes account creation, login validation, password recovery, dashboard navigation, AI attendance processing, and system administration features.
+
+<img width="1357" height="1562" alt="Procedural Design" src="https://github.com/user-attachments/assets/5508f159-86a7-4acd-a4e0-62af4e2d9786" />
+
+### 1. System Entry
+
+The system begins when the user opens the Attendance System program.
+
+The user is prompted to select their account type:
+
+Student
+
+Teacher
+
+Admin
+
+### 2. Account Authentication
+Login Process
+
+Each user type enters their username and password.
+
+The system verifies login credentials.
+
+Invalid Credentials
+
+If the credentials are incorrect:
+
+The system displays: “Invalid username or password. Forgot Password?”
+
+User may proceed to the Forgot Password workflow:
+
+Enter email to receive reset link
+
+System sends reset link
+
+User enters a new password
+
+Password reset success → Returns to Login
+
+Valid Credentials
+
+Users proceed to their respective dashboards.
+
+### 3. Teacher Workflow
+Teacher Dashboard Options
+
+View Students' Attendance Records
+
+Manage Attendance Records
+
+Mark students Present, Late, or Absent
+
+View Notifications
+
+Sign Out → End
+
+### 4. Student Workflow
+Student Dashboard Options
+
+Scan Face for attendance
+
+If face is detected, the AI verifies identity
+
+If recognized → Marks attendance and updates database
+
+If not recognized → System logs as unknown / retry prompt
+
+If face not detected → System prompts for repositioning
+
+View Personal Notifications
+
+View Class Schedule
+
+Sign Out → End
+
+### 5. Admin Workflow
+Admin Dashboard Features
+
+Manage Users
+
+Add, Edit, or Delete Accounts
+
+Train AI Model
+
+Update datasets for facial recognition
+
+Manage Notifications / SMS Logs
+
+Backup and Restore Database
+
+Sign Out → End
+
+### 6. System Exit
+
+All user types terminate their workflow by selecting Sign Out, leading to the End of the procedural flow.
+
 **Flow Explanation:**
 1. Students scan their faces using the tablet interface.  
 2. The AI module processes the image, generates a **face embedding**, and checks it against the database.  
@@ -91,5 +208,5 @@ The system's overall data flow and interaction between components can be illustr
 | **Member** | **Role** | **Contributions** |
 |-------------|-----------|-------------------|
 | **Owen Robert Magsayo** | Team Leader | - Created and updated the **README.md** and full project **documentation**.<br>- Designed both the **Use Case Diagram** and **Class Diagram**.<br>- Consolidated and organized all files for submission.<br>- Created the **Procedural Design**. |
-| **Annie Rose Mamitag** | Team Member | - Created the **GitHub repository** for the project.<br>- Helped design both the **Use Case Diagram** and **Class Diagram**.<br>- Added the **Key Features** section in the **README.md**.<br>- Assisted in improving diagram layout and accuracy.<br>- Created the **Architectural Design Flow** and **UI Interface**. |
+| **Annie Rose Mamitag**  | Team Member    | - Created the GitHub repository.<br>- Designed diagrams and architectural flow.<br>- Added Key Features section.<br>- Created UI interface and backend folder structure.<br>**- Developed and modularized the backend using Express.js.**<br>**- Validated API endpoints and prepared for frontend integration.** |
 | **Norwejean Arnado** | Team Member | - Collaborated on both the **Use Case Diagram** and **Class Diagram**.<br>- Wrote the **Data Privacy and Security Measures**, **Compliance & Legal Framework**, and **Security Implementation** sections.<br>- Modified and refined the final **Class Diagram** design.<br>- Created the **Data Design** and database. |
