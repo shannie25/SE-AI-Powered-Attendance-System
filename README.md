@@ -95,110 +95,100 @@ The system's overall data flow and interaction between components can be illustr
 
 ## Procedural Design
 
-This procedural design flowchart illustrates the complete user flow of the AI-Powered Attendance Monitoring System, detailing how students, teachers, and administrators interact with the platform.
-It includes account creation, login validation, password recovery, dashboard navigation, AI attendance processing, and system administration features.
+This procedural design outlines the complete flow of the **AI-Powered Attendance Monitoring System**, detailing how **Students**, **Teachers**, and **Admins** interact with the platform.  
+It includes **user type selection, authentication, password recovery, facial recognition attendance, dashboard features, and administrative controls.**
 
-<img width="1357" height="1562" alt="Procedural Design" src="https://github.com/user-attachments/assets/5508f159-86a7-4acd-a4e0-62af4e2d9786" />
+---
 
-### 1. System Entry
+## 1. System Entry
 
-The system begins when the user opens the Attendance System program.
+- User opens the Attendance System.
+- The system prompts the user to select their **User Type**:
+  - Student  
+  - Teacher  
+  - Admin  
 
-The user is prompted to select their account type:
+---
 
-Student
+## 2. Account Authentication
 
-Teacher
+### Login Process
+- User enters their **username** and **password**.
+- The system checks if the credentials are valid.
 
-Admin
+#### Invalid Credentials
+- If login fails, system displays:  
+  *“Invalid username or password. Forgot password?”*
+- If the user selects **Forgot Password**:
+  - Enter registered email.
+  - Receive a password reset link.
+  - Set a new password.
+  - Return to login screen after successful reset.
 
-### 2. Account Authentication
-Login Process
+#### Valid Credentials
+- If login is successful:
+  - System redirects the user to their **respective dashboard** based on selected user type.
 
-Each user type enters their username and password.
+---
 
-The system verifies login credentials.
+## 3. Teacher Workflow
 
-Invalid Credentials
+Once logged in, the **Teacher Dashboard** allows the teacher to:
 
-If the credentials are incorrect:
+- View students’ attendance records  
+- Manage attendance (**Present, Late, Absent**)  
+- View notifications  
+- Sign out (ends the session)  
 
-The system displays: “Invalid username or password. Forgot Password?”
+---
 
-User may proceed to the Forgot Password workflow:
+## 4. Student Workflow
 
-Enter email to receive reset link
+Once logged in, the **Student Dashboard** allows the student to:
 
-System sends reset link
+### Facial Recognition Attendance
+- Student scans their face using the system camera.
+- If face detected, system begins identity verification.
 
-User enters a new password
+#### Outcomes:
+- **Recognized** → Attendance is logged in the database.  
+- **Not Recognized** → System logs the attempt or prompts retry.  
+- **Face Not Detected** → System prompts the student to reposition.  
 
-Password reset success → Returns to Login
+### Additional Student Features
+- View attendance-related notifications  
+- View class schedule  
+- Sign out (ends the session)  
 
-Valid Credentials
+---
 
-Users proceed to their respective dashboards.
+## 5. Admin Workflow
 
-### 3. Teacher Workflow
-Teacher Dashboard Options
+Once logged in, the **Admin Dashboard** allows the admin to:
 
-View Students' Attendance Records
+- Manage user accounts (**Add, Edit, Delete**)  
+- Train the AI facial recognition model  
+- Manage notifications / SMS logs  
+- Backup or restore the database  
+- Sign out (ends the session)  
 
-Manage Attendance Records
+---
 
-Mark students Present, Late, or Absent
+## 6. System Exit
 
-View Notifications
+- All user workflows end when the user selects **Sign Out**.  
+- Leads to the system’s **termination point (End).**
 
-Sign Out → End
+---
 
-### 4. Student Workflow
-Student Dashboard Options
+## Summary Flow
 
-Scan Face for attendance
+1. **System Entry → User Type Selection**  
+2. **Authentication → Login / Password Recovery**  
+3. **Dashboard Access → Teacher / Student / Admin Workflows**  
+4. **System Exit → Sign Out → End**  
 
-If face is detected, the AI verifies identity
-
-If recognized → Marks attendance and updates database
-
-If not recognized → System logs as unknown / retry prompt
-
-If face not detected → System prompts for repositioning
-
-View Personal Notifications
-
-View Class Schedule
-
-Sign Out → End
-
-### 5. Admin Workflow
-Admin Dashboard Features
-
-Manage Users
-
-Add, Edit, or Delete Accounts
-
-Train AI Model
-
-Update datasets for facial recognition
-
-Manage Notifications / SMS Logs
-
-Backup and Restore Database
-
-Sign Out → End
-
-### 6. System Exit
-
-All user types terminate their workflow by selecting Sign Out, leading to the End of the procedural flow.
-
-**Flow Explanation:**
-1. Students scan their faces using the tablet interface.  
-2. The AI module processes the image, generates a **face embedding**, and checks it against the database.  
-3. If recognized, attendance is automatically marked in the database.  
-4. Teachers and administrators can access attendance data via the dashboard or reports.  
-5. The system ensures that all data is handled securely and locally during testing.
-6. Parent/Guardian will receive SMS updates when attendance is recorded or if a student is marked absent.
+---
 
 > "In future versions, a **Parent Dashboard** may be added for detailed attendance tracking and analytics."
 
@@ -210,3 +200,5 @@ All user types terminate their workflow by selecting Sign Out, leading to the En
 | **Owen Robert Magsayo** | Team Leader | - Created and updated the **README.md** and full project **documentation**.<br>- Designed both the **Use Case Diagram** and **Class Diagram**.<br>- Consolidated and organized all files for submission.<br>- Created the **Procedural Design**. |
 | **Annie Rose Mamitag**  | Team Member    | - Created the GitHub repository.<br>- Designed diagrams and architectural flow.<br>- Added Key Features section.<br>- Created UI interface and backend folder structure.<br>**- Developed and modularized the backend using Express.js.**<br>**- Validated API endpoints and prepared for frontend integration.** |
 | **Norwejean Arnado** | Team Member | - Collaborated on both the **Use Case Diagram** and **Class Diagram**.<br>- Wrote the **Data Privacy and Security Measures**, **Compliance & Legal Framework**, and **Security Implementation** sections.<br>- Modified and refined the final **Class Diagram** design.<br>- Created the **Data Design** and database. |
+
+
