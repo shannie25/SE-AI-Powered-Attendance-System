@@ -54,7 +54,6 @@ It shows the main classes such as Student, Teacher, Administrator, Parent/Guardi
 
 ![SE-AI-Powered-Attendance-System/UML/\[SOFT ENG\] CLASS DIAGRAM.jpg](<UML/Updated Class Diagram.png>)
 
-
 ### 3. Use Case Description
 The Use Case Description explains how each actor (Student, Administrator, Teacher, and Parent/Guardian) interacts with the system. It defines the system’s main functions such as face registration, attendance scanning, report generation, and notification handling. These descriptions provide a detailed view of the system’s behavior in different user scenarios.
 
@@ -95,10 +94,9 @@ The system's overall data flow and interaction between components can be illustr
 
 ## Procedural Design
 
-This procedural design outlines the complete flow of the **AI-Powered Attendance Monitoring System**, detailing how **Students**, **Teachers**, and **Admins** interact with the platform.  
-It includes **user type selection, authentication, password recovery, facial recognition attendance, dashboard features, and administrative controls.**
-
----
+- This procedural design outlines the complete flow of the **AI-Powered Attendance Monitoring System**, detailing how **Students**, **Teachers**, and **Admins** interact with the platform.  
+- It includes **user type selection, authentication, password recovery, facial recognition attendance, dashboard features, and administrative controls.**
+<img width="1357" height="1562" alt="Procedural Design" src="https://github.com/user-attachments/assets/e7c1a7a7-309a-48b5-b2d6-9945f84902e1" />
 
 ## 1. System Entry
 
@@ -107,8 +105,6 @@ It includes **user type selection, authentication, password recovery, facial rec
   - Student  
   - Teacher  
   - Admin  
-
----
 
 ## 2. Account Authentication
 
@@ -129,8 +125,6 @@ It includes **user type selection, authentication, password recovery, facial rec
 - If login is successful:
   - System redirects the user to their **respective dashboard** based on selected user type.
 
----
-
 ## 3. Teacher Workflow
 
 Once logged in, the **Teacher Dashboard** allows the teacher to:
@@ -139,8 +133,6 @@ Once logged in, the **Teacher Dashboard** allows the teacher to:
 - Manage attendance (**Present, Late, Absent**)  
 - View notifications  
 - Sign out (ends the session)  
-
----
 
 ## 4. Student Workflow
 
@@ -160,8 +152,6 @@ Once logged in, the **Student Dashboard** allows the student to:
 - View class schedule  
 - Sign out (ends the session)  
 
----
-
 ## 5. Admin Workflow
 
 Once logged in, the **Admin Dashboard** allows the admin to:
@@ -171,8 +161,6 @@ Once logged in, the **Admin Dashboard** allows the admin to:
 - Manage notifications / SMS logs  
 - Backup or restore the database  
 - Sign out (ends the session)  
-
----
 
 ## 6. System Exit
 
@@ -187,8 +175,6 @@ Once logged in, the **Admin Dashboard** allows the admin to:
 2. **Authentication → Login / Password Recovery**  
 3. **Dashboard Access → Teacher / Student / Admin Workflows**  
 4. **System Exit → Sign Out → End**  
-
----
 
 > "In future versions, a **Parent Dashboard** may be added for detailed attendance tracking and analytics."
 
