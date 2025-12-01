@@ -183,7 +183,7 @@ Once logged in, the **Admin Dashboard** allows the admin to:
 
 | **Member** | **Role** | **Contributions** |
 |-------------|-----------|-------------------|
-| **Owen Robert Magsayo** | Team Leader | - Created and updated the **README.md** and full project **documentation**.<br>- Designed both the **Use Case Diagram** and **Class Diagram**.<br>- Consolidated and organized all files for submission.<br>- Created the **Procedural Design**. |
+| **Owen Robert Magsayo** | Team Leader | - Created and updated the **README.md** and full project **documentation**.<br>- Designed both the **Use Case Diagram** and **Class Diagram**.<br>- Consolidated and organized all files for submission.<br>- Created the **Procedural Design**.<br>- Contributed to the **UI Interface Design**. |
 | **Annie Rose Mamitag**  | Team Member    | - Created the GitHub repository.<br>- Designed diagrams and architectural flow.<br>- Added Key Features section.<br>- Created UI interface and backend folder structure.<br>**- Developed and modularized the backend using Express.js.**<br>**- Validated API endpoints and prepared for frontend integration.** |
 | **Norwejean Arnado** | Team Member | - Collaborated on both the **Use Case Diagram** and **Class Diagram**.<br>- Wrote the **Data Privacy and Security Measures**, **Compliance & Legal Framework**, and **Security Implementation** sections.<br>- Modified and refined the final **Class Diagram** design.<br>- Created the **Data Design** and database. |
 
