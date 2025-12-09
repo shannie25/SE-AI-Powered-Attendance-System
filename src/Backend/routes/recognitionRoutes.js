@@ -1,19 +1,27 @@
 const express = require('express');
 const router = express.Router();
-const { recognizeFace } = require('../controllers/recognitionController');
+const { spawn } = require('child_process');
+const attendanceController = require('../controllers/attendanceController');
+
 
 router.post('/', (req, res) => {
-  const { embedding } = req.body;
-  if (!embedding || !Array.isArray(embedding)) {
-    return res.status(400).json({ error: 'Invalid embedding' });
-  }
+  const { studentID, courseID } = req.body;
 
-  const result = recognizeFace(embedding);
-  if (!result) {
-    return res.status(404).json({ message: 'No match found' });
-  }
+  const py = spawn('python', ['../python/live_deepface.py', studentID]);
 
-  res.json({ success: true, match: result });
+  py.stdout.on('data', async (data) => {
+    const confidence = parseFloat(data.toString());
+    try {
+      const result = await attendanceController.logAttendance(studentID, courseID, 'Present', confidence);
+      res.json(result);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  py.stderr.on('data', (data) => {
+    console.error(`Python error: ${data}`);
+  });
 });
 
 module.exports = router;

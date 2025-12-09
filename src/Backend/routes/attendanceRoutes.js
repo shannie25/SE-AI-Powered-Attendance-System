@@ -1,38 +1,50 @@
 const express = require('express');
 const router = express.Router();
+const attendanceController = require('../controllers/attendanceController');
 
-const {
-  logAttendance,
-  getAttendance,
-  getAttendanceByStudentId
-} = require('../controllers/attendanceController');
 
-const studentController = require('../controllers/studentController');
-console.log('🔍 studentController keys:', Object.keys(studentController));
-
-const findStudentById = studentController.findStudentById;
-
-router.post('/', (req, res) => {
-  const { studentId } = req.body;
-  const student = findStudentById(studentId);
-
-  if (!student) {
-    return res.status(404).json({ error: 'Student not found' });
+router.post('/log', async (req, res) => {
+  const { studentID, courseID, status, confidence } = req.body;
+  try {
+    const result = await attendanceController.logAttendance(studentID, courseID, status, confidence);
+    res.json({ success: true, ...result });
+  } catch (err) {
+    console.error('Error logging attendance:', err);
+    res.status(500).json({ success: false, error: 'Failed to log attendance', details: err.message });
   }
-
-  const entry = logAttendance(studentId, student.name);
-  res.json({ success: true, entry });
 });
 
-router.get('/:studentId', (req, res) => {
-  const studentId = parseInt(req.params.studentId);
-  const logs = getAttendanceByStudentId(studentId);
 
-  if (logs.length === 0) {
-    return res.status(404).json({ error: 'No attendance found for this student' });
+router.get('/', async (req, res) => {
+  try {
+    const logs = await attendanceController.getAttendance();
+    res.json({ success: true, records: logs });
+  } catch (err) {
+    console.error('Error fetching attendance:', err);
+    res.status(500).json({ success: false, error: 'Failed to fetch attendance', details: err.message });
   }
+});
 
-  res.json(logs);
+
+router.get('/student/:studentID', async (req, res) => {
+  try {
+    const logs = await attendanceController.getAttendanceByStudentId(req.params.studentID);
+    res.json({ success: true, records: logs });
+  } catch (err) {
+    console.error(`Error fetching logs for student ${req.params.studentID}:`, err);
+    res.status(500).json({ success: false, error: 'Failed to fetch student logs', details: err.message });
+  }
+});
+
+
+router.get('/course/:courseID', async (req, res) => {
+  try {
+    const logs = await attendanceController.getAttendanceByCourseId(req.params.courseID);
+    res.json({ success: true, records: logs });
+  } catch (err) {
+    console.error(`Error fetching logs for course ${req.params.courseID}:`, err);
+    res.status(500).json({ success: false, error: 'Failed to fetch course logs', details: err.message });
+  }
 });
 
 module.exports = router;

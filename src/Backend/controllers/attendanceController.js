@@ -1,66 +1,58 @@
-const fs = require('fs');
-const path = require('path');
+const db = require('../config/db');
 
-// File paths
-const jsonPath = path.join(__dirname, '../data/attendance.json');
-const csvPath = path.join(__dirname, '../data/attendance.csv');
+async function logAttendance(studentID, courseID, status = 'Present', confidence = null) {
+  const today = new Date().toISOString().split('T')[0];
+  const now = new Date().toTimeString().split(' ')[0];
 
-// Load attendance from JSON
-function loadAttendance() {
+  const query = `
+    INSERT INTO Attendance (studentID, courseID, date, timeIn, status, confidence, verificationMethod)
+    VALUES (?, ?, ?, ?, ?, ?, 'Facial Recognition')
+    ON DUPLICATE KEY UPDATE 
+      timeOut = VALUES(timeIn),
+      status = VALUES(status),
+      confidence = VALUES(confidence),
+      updatedAt = CURRENT_TIMESTAMP
+  `;
+
   try {
-    const data = fs.readFileSync(jsonPath, 'utf-8');
-    return JSON.parse(data);
+    const [results] = await db.execute(query, [studentID, courseID, today, now, status, confidence]);
+    return { success: true, id: results.insertId };
   } catch (err) {
-    return [];
+    throw err;
   }
 }
 
-// Save attendance to JSON
-function saveAttendance(log) {
-  fs.writeFileSync(jsonPath, JSON.stringify(log, null, 2));
-}
-
-// Append attendance to CSV
-function appendToCSV(entry) {
-  const header = 'studentId,studentName,timestamp\n';
-  const row = `${entry.studentId},${entry.name},"${entry.timestamp}"\n`;
-
-  // Create CSV file with header if it doesn't exist
-  if (!fs.existsSync(csvPath)) {
-    fs.writeFileSync(csvPath, header + row);
-  } else {
-    fs.appendFile(csvPath, row, (err) => {
-      if (err) {
-        console.error('❌ Failed to append to CSV:', err.message);
-      } else {
-        console.log(`✅ CSV log added for ${entry.name}`);
-      }
-    });
+async function getAttendance() {
+  try {
+    const [results] = await db.execute('SELECT * FROM Attendance');
+    return results;
+  } catch (err) {
+    throw err;
   }
 }
 
-let attendanceLog = loadAttendance();
-
-// Log attendance to both JSON and CSV
-function logAttendance(studentId, name) {
-  const entry = {
-    studentId,
-    name,
-    timestamp: formatTimestamp(new Date().toISOString())
-  };
-  attendanceLog.push(entry);
-  saveAttendance(attendanceLog);
-  appendToCSV(entry);
-  return entry;
+async function getAttendanceByStudentId(studentID) {
+  try {
+    const [results] = await db.execute('SELECT * FROM Attendance WHERE studentID = ?', [studentID]);
+    return results;
+  } catch (err) {
+    throw err;
+  }
 }
 
-// Utility functions
-function getAttendance() {
-  return attendanceLog;
-}
-
-function getAttendanceByStudentId(studentId) {
-  return attendanceLog.filter((entry) => entry.studentId === studentId);
+async function getAttendanceByCourseId(courseID) {
+  const [rows] = await db.query(
+    `SELECT a.attendanceID, a.studentID, s.firstName, s.lastName,
+            a.courseID, c.courseName,
+            a.status, a.confidence, a.date, a.timeIn, a.timeOut, a.createdAt, a.updatedAt
+     FROM Attendance a
+     JOIN Student s ON a.studentID = s.studentID
+     JOIN Course c ON a.courseID = c.courseID
+     WHERE a.courseID = ?
+     ORDER BY a.date DESC, a.timeIn DESC`,
+    [courseID]
+  );
+  return rows;
 }
 
 function formatTimestamp(isoString) {
@@ -75,22 +67,20 @@ function formatTimestamp(isoString) {
   });
 }
 
-function getTodayLogs() {
+async function getTodayLogs() {
   const today = new Date().toISOString().split('T')[0];
-  return attendanceLog.filter(entry => {
-    const entryDate = new Date(entry.timestamp).toISOString().split('T')[0];
-    return entryDate === today;
-  });
-}
-
-function getStudentLogs(studentId) {
-  return attendanceLog.filter(entry => entry.studentId === studentId);
+  try {
+    const [results] = await db.execute('SELECT * FROM Attendance WHERE date = ?', [today]);
+    return results;
+  } catch (err) {
+    throw err;
+  }
 }
 
 module.exports = {
   logAttendance,
   getAttendance,
   getAttendanceByStudentId,
-  getTodayLogs,
-  getStudentLogs
+  getAttendanceByCourseId,
+  getTodayLogs
 };
