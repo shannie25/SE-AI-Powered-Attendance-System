@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Face Scanner - AI Attendance</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .scanner-header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 15px 20px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .logo i {
+            font-size: 32px;
+        }
+
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #10b981;
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.offline {
+            background: #ef4444;
+            animation: none;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Main Container */
+        .scanner-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        /* Camera Section */
+        .camera-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .camera-view {
+            position: relative;
+            background: #000;
+            border-radius: 20px;
+            overflow: hidden;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        #video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        #canvas {
+            display: none;
+        }
+
+        .camera-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            pointer-events: none;
+        }
+
+        .camera-overlay.hidden {
+            display: none;
+        }
+
+        .face-frame {
+            width: 300px;
+            height: 400px;
+            border: 4px solid #10b981;
+            border-radius: 50%;
+            position: relative;
+            animation: scan 2s infinite;
+        }
+
+        @keyframes scan {
+            0%, 100% {
+                border-color: #10b981;
+                transform: scale(1);
+            }
+            50% {
+                border-color: #3b82f6;
+                transform: scale(1.05);
+            }
+        }
+
+        .instruction-text {
+            margin-top: 30px;
+            font-size: 24px;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 18px 40px;
+            border: none;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn-primary {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            backdrop-filter: blur(10px);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Settings Panel */
+        .settings-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 15px;
+            border-radius: 15px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .setting-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .setting-item label {
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .setting-item select,
+        .setting-item input {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            font-size: 14px;
+            min-width: 200px;
+        }
+
+        /* Result Modal */
+        .result-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s;
+        }
+
+        .result-modal.show {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .result-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 500px;
+            animation: slideUp 0.3s;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .result-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+
+        .result-icon.success {
+            color: #10b981;
+        }
+
+        .result-icon.error {
+            color: #ef4444;
+        }
+
+        .result-content h2 {
+            font-size: 32px;
+            margin-bottom: 15px;
+            color: #1f2937;
+        }
+
+        .result-details {
+            background: #f3f4f6;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #6b7280;
+        }
+
+        .detail-value {
+            color: #1f2937;
+            font-weight: 600;
+        }
+
+        .result-close {
+            margin-top: 20px;
+        }
+
+        /* Loading Spinner */
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+        }
+
+        .loading.show {
+            display: flex;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: white;
+            margin-top: 20px;
+            font-size: 18px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .scanner-header {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .controls {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .settings-panel {
+                flex-direction: column;
+            }
+
+            .setting-item select,
+            .setting-item input {
+                width: 100%;
+            }
+
+            .face-frame {
+                width: 200px;
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="scanner-header">
+        <div class="logo">
+            <i class="fas fa-brain"></i>
+            <span>AI Attendance Scanner</span>
+        </div>
+        <div class="connection-status">
+            <div class="status-dot" id="statusDot"></div>
+            <span id="statusText">Connected</span>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="scanner-container">
+        <div class="camera-section">
+            <!-- Camera View -->
+            <div class="camera-view">
+                <video id="video" autoplay playsinline></video>
+                <canvas id="canvas"></canvas>
+                <div class="camera-overlay" id="cameraOverlay">
+                    <div class="face-frame"></div>
+                    <div class="instruction-text">
+                        Position your face in the frame
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Panel -->
+            <div class="settings-panel">
+                <div class="setting-item">
+                    <label>Camera</label>
+                    <select id="cameraSelect">
+                        <option value="">Loading cameras...</option>
+                    </select>
+                </div>
+                <div class="setting-item">
+                    <label>Course</label>
+                    <select id="courseSelect">
+                        <option value="">Select Course</option>
+                        <option value="CS101">CS101 - Intro to Programming</option>
+                        <option value="IT102">IT102 - Database Systems</option>
+                    </select>
+                </div>
+                <div class="setting-item">
+                    <label>Confidence Threshold</label>
+                    <input type="range" id="thresholdSlider" min="0.5" max="1.0" step="0.05" value="0.85">
+                    <span style="color: white;" id="thresholdValue">0.85</span>
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="controls">
+                <button class="btn btn-primary" id="scanBtn" disabled>
+                    <i class="fas fa-camera"></i>
+                    Scan Face
+                </button>
+                <button class="btn btn-danger" id="stopBtn" style="display: none;">
+                    <i class="fas fa-stop"></i>
+                    Stop Camera
+                </button>
+                <button class="btn btn-secondary" id="settingsBtn">
+                    <i class="fas fa-cog"></i>
+                    Settings
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Result Modal -->
+    <div class="result-modal" id="resultModal">
+        <div class="result-content">
+            <div class="result-icon" id="resultIcon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h2 id="resultTitle">Recognition Successful!</h2>
+            <div class="result-details" id="resultDetails"></div>
+            <button class="btn btn-primary result-close" onclick="closeResult()">
+                Continue Scanning
+            </button>
+        </div>
+    </div>
+
+    <!-- Loading -->
+    <div class="loading" id="loading">
+        <div>
+            <div class="spinner"></div>
+            <div class="loading-text">Processing...</div>
+        </div>
+    </div>
+
+    <!-- Configuration -->
+    <script>
+        const API_URL = 'http://192.168.100.199:3000'; 
+        
+        let stream = null;
+        let processingImage = false;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            await checkConnection();
+            await loadCameras();
+            setupEventListeners();
+            
+            // Auto-start camera if available
+            const cameras = await navigator.mediaDevices.enumerateDevices();
+            const videoDevices = cameras.filter(device => device.kind === 'videoinput');
+            if (videoDevices.length > 0) {
+                startCamera();
+            }
+        });
+
+        // Check server connection
+        async function checkConnection() {
+            try {
+                const response = await fetch(`${API_URL}/health`);
+                if (response.ok) {
+                    updateStatus(true);
+                } else {
+                    updateStatus(false);
+                }
+            } catch (error) {
+                updateStatus(false);
+            }
+        }
+
+        function updateStatus(connected) {
+            const dot = document.getElementById('statusDot');
+            const text = document.getElementById('statusText');
+            
+            if (connected) {
+                dot.classList.remove('offline');
+                text.textContent = 'Connected';
+            } else {
+                dot.classList.add('offline');
+                text.textContent = 'Offline';
+            }
+        }
+
+        // Load available cameras
+        async function loadCameras() {
+            try {
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                const videoDevices = devices.filter(device => device.kind === 'videoinput');
+                
+                const cameraSelect = document.getElementById('cameraSelect');
+                cameraSelect.innerHTML = videoDevices.map((device, index) => 
+                    `<option value="${device.deviceId}">${device.label || `Camera ${index + 1}`}</option>`
+                ).join('');
+                
+                if (videoDevices.length === 0) {
+                    cameraSelect.innerHTML = '<option value="">No cameras found</option>';
+                }
+            } catch (error) {
+                console.error('Error loading cameras:', error);
+            }
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            document.getElementById('scanBtn').addEventListener('click', scanFace);
+            document.getElementById('stopBtn').addEventListener('click', stopCamera);
+            document.getElementById('cameraSelect').addEventListener('change', restartCamera);
+            document.getElementById('thresholdSlider').addEventListener('input', (e) => {
+                document.getElementById('thresholdValue').textContent = e.target.value;
+            });
+        }
+
+        // Start camera
+        async function startCamera() {
+            try {
+                const deviceId = document.getElementById('cameraSelect').value;
+                const constraints = {
+                    video: deviceId ? { deviceId: { exact: deviceId } } : true,
+                    audio: false
+                };
+
+                stream = await navigator.mediaDevices.getUserMedia(constraints);
+                document.getElementById('video').srcObject = stream;
+                
+                document.getElementById('cameraOverlay').classList.add('hidden');
+                document.getElementById('scanBtn').disabled = false;
+                document.getElementById('stopBtn').style.display = 'inline-flex';
+                
+                console.log('Camera started');
+            } catch (error) {
+                console.error('Error starting camera:', error);
+                alert('Failed to start camera. Please check permissions.');
+            }
+        }
+
+        // Stop camera
+        function stopCamera() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+                document.getElementById('video').srcObject = null;
+                document.getElementById('cameraOverlay').classList.remove('hidden');
+                document.getElementById('scanBtn').disabled = true;
+                document.getElementById('stopBtn').style.display = 'none';
+            }
+        }
+
+        // Restart camera
+        async function restartCamera() {
+            stopCamera();
+            await startCamera();
+        }
+
+        // Scan face
+        async function scanFace() {
+            if (processingImage) return;
+            processingImage = true;
+
+            try {
+                // Show loading
+                document.getElementById('loading').classList.add('show');
+
+                // Capture frame
+                const video = document.getElementById('video');
+                const canvas = document.getElementById('canvas');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(video, 0, 0);
+                
+                // Convert to blob
+                const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.95));
+                
+                // Prepare form data
+                const formData = new FormData();
+                formData.append('image', blob, 'scan.jpg');
+                
+                const courseID = document.getElementById('courseSelect').value;
+                if (courseID) {
+                    formData.append('courseID', courseID);
+                }
+                
+                const threshold = document.getElementById('thresholdSlider').value;
+                formData.append('threshold', threshold);
+
+                // Send to server
+                const response = await fetch(`${API_URL}/upload/recognize`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                
+                // Hide loading
+                document.getElementById('loading').classList.remove('show');
+
+                // Show result
+                if (result.success && result.recognized) {
+                    showResult(true, result);
+                } else {
+                    showResult(false, result);
+                }
+
+            } catch (error) {
+                console.error('Scan error:', error);
+                document.getElementById('loading').classList.remove('show');
+                showResult(false, { message: 'Scan failed: ' + error.message });
+            } finally {
+                processingImage = false;
+            }
+        }
+
+        // Show result
+        function showResult(success, data) {
+            const modal = document.getElementById('resultModal');
+            const icon = document.getElementById('resultIcon');
+            const title = document.getElementById('resultTitle');
+            const details = document.getElementById('resultDetails');
+
+            if (success) {
+                icon.innerHTML = '<i class="fas fa-check-circle"></i>';
+                icon.className = 'result-icon success';
+                title.textContent = 'Attendance Marked!';
+                
+                details.innerHTML = `
+                    <div class="detail-row">
+                        <span class="detail-label">Student ID:</span>
+                        <span class="detail-value">${data.studentID || 'N/A'}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Name:</span>
+                        <span class="detail-value">${data.studentName || 'N/A'}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Confidence:</span>
+                        <span class="detail-value">${((data.confidence || 0) * 100).toFixed(1)}%</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Status:</span>
+                        <span class="detail-value">${data.status || 'Present'}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Time:</span>
+                        <span class="detail-value">${new Date().toLocaleTimeString()}</span>
+                    </div>
+                `;
+            } else {
+                icon.innerHTML = '<i class="fas fa-times-circle"></i>';
+                icon.className = 'result-icon error';
+                title.textContent = 'Not Recognized';
+                
+                details.innerHTML = `
+                    <p style="color: #6b7280; text-align: center;">
+                        ${data.message || 'Face not recognized. Please try again.'}
+                    </p>
+                `;
+            }
+
+            modal.classList.add('show');
+
+            // Auto-close after 3 seconds
+            setTimeout(() => {
+                if (success) {
+                    closeResult();
+                }
+            }, 3000);
+        }
+
+        // Close result
+        function closeResult() {
+            document.getElementById('resultModal').classList.remove('show');
+        }
+
+        // Check connection periodically
+        setInterval(checkConnection, 5000);
+    </script>
+</body>
+</html>
