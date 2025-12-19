@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Register - EduFace</title>
+    <link rel="stylesheet" href="assets/styles.css">
+    <style>
+        .role-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .role-tab {
+            padding: 12px 24px;
+            background: #E5E7EB;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .role-tab.active {
+            background: #3B82F6;
+            color: white;
+        }
+        .form-section {
+            display: none;
+        }
+        .form-section.active {
+            display: block;
+        }
+        .validation-msg {
+            font-size: 13px;
+            margin-top: 5px;
+        }
+        .validation-msg.success { color: #10B981; }
+        .validation-msg.error { color: #EF4444; }
+        #preview {
+            max-width: 200px;
+            margin-top: 10px;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-frame">
+        <div class="card" style="max-width: 600px;">
+            <div class="card-right" style="width: 100%;">
+                <div class="h-brand">EduFace</div>
+                <div class="h-small">Create Account</div>
+
+                <!-- Role Selection Tabs -->
+                <div class="role-tabs">
+                    <button class="role-tab active" onclick="selectRole('student')">
+                        Student
+                    </button>
+                    <button class="role-tab" onclick="selectRole('parent')">
+                        Parent/Guardian
+                    </button>
+                </div>
+
+                <!-- Student Registration Form -->
+                <form id="studentForm" class="form-section active">
+                    <div class="field">
+                        <label>Student ID</label>
+                        <input type="text" id="studentID" class="input" 
+                               placeholder="e.g., 2023018931" required>
+                        <div id="studentIDMsg" class="validation-msg"></div>
+                    </div>
+
+                    <div class="field">
+                        <label>First Name</label>
+                        <input type="text" id="studentFirstName" class="input" required>
+                    </div>
+
+                    <div class="field">
+                        <label>Last Name</label>
+                        <input type="text" id="studentLastName" class="input" required>
+                    </div>
+
+                    <div class="field">
+                        <label>Email</label>
+                        <input type="email" id="studentEmail" class="input" required>
+                        <div id="emailMsg" class="validation-msg"></div>
+                    </div>
+
+                    <div class="field">
+                        <label>Password</label>
+                        <input type="password" id="studentPassword" class="input" 
+                               minlength="8" required>
+                    </div>
+
+                    <div class="field">
+                        <label>Confirm Password</label>
+                        <input type="password" id="studentConfirmPassword" class="input" required>
+                    </div>
+
+                    <div class="field">
+                        <label>Face Photo</label>
+                        <input type="file" id="facePhoto" class="input" 
+                               accept="image/*" required>
+                        <img id="preview" style="display:none;" />
+                        <small>Please upload a clear photo of your face</small>
+                    </div>
+
+                    <button type="submit" class="btn">Register Student</button>
+                    <div id="studentMsg" class="formMsg"></div>
+                </form>
+
+                <!-- Parent Registration Form -->
+                <form id="parentForm" class="form-section">
+                    <div class="field">
+                        <label>Child's Student ID</label>
+                        <input type="text" id="childStudentID" class="input" 
+                               placeholder="e.g., 2023018931" required>
+                        <div id="childIDMsg" class="validation-msg"></div>
+                    </div>
+
+                    <div class="field">
+                        <label>Relationship</label>
+                        <select id="relationship" class="input" required>
+                            <option value="">-- Select --</option>
+                            <option value="Father">Father</option>
+                            <option value="Mother">Mother</option>
+                            <option value="Guardian">Legal Guardian</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label>Your First Name</label>
+                        <input type="text" id="parentFirstName" class="input" required>
+                    </div>
+
+                    <div class="field">
+                        <label>Your Last Name</label>
+                        <input type="text" id="parentLastName" class="input" required>
+                    </div>
+
+                    <div class="field">
+                        <label>Contact Number</label>
+                        <input type="tel" id="contactNumber" class="input" 
+                               placeholder="09XXXXXXXXX" required>
+                    </div>
+
+                    <div class="field">
+                        <label>Email</label>
+                        <input type="email" id="parentEmail" class="input" required>
+                        <div id="parentEmailMsg" class="validation-msg"></div>
+                    </div>
+
+                    <div class="field">
+                        <label>Password</label>
+                        <input type="password" id="parentPassword" class="input" 
+                               minlength="8" required>
+                    </div>
+
+                    <div class="field">
+                        <label>Confirm Password</label>
+                        <input type="password" id="parentConfirmPassword" class="input" required>
+                    </div>
+
+                    <button type="submit" class="btn">Register Parent</button>
+                    <div id="parentMsg" class="formMsg"></div>
+                </form>
+
+                <div style="margin-top: 18px; text-align: center;">
+                    Already have an account? 
+                    <a href="index.html">Login</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/main.js"></script>
+    <script>
+        const API_URL = 'http://localhost:3000';
+        let currentRole = 'student';
+
+        // Role selection
+        function selectRole(role) {
+            currentRole = role;
+            
+            // Update tabs
+            document.querySelectorAll('.role-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Show/hide forms
+            document.querySelectorAll('.form-section').forEach(form => {
+                form.classList.remove('active');
+            });
+            
+            if (role === 'student') {
+                document.getElementById('studentForm').classList.add('active');
+            } else {
+                document.getElementById('parentForm').classList.add('active');
+            }
+        }
+
+        // Validate Student ID (real-time)
+        document.getElementById('studentID')?.addEventListener('blur', async (e) => {
+            const studentID = e.target.value.trim();
+            const msgEl = document.getElementById('studentIDMsg');
+            
+            if (!studentID) return;
+
+            try {
+                const res = await fetch(`${API_URL}/api/registration/validate-student-id/${studentID}`);
+                const data = await res.json();
+                
+                if (data.ok) {
+                    msgEl.textContent = `✓ Valid - ${data.studentInfo.firstName} ${data.studentInfo.lastName}`;
+                    msgEl.className = 'validation-msg success';
+                    
+                    // Auto-fill name if available
+                    document.getElementById('studentFirstName').value = data.studentInfo.firstName;
+                    document.getElementById('studentLastName').value = data.studentInfo.lastName;
+                } else {
+                    msgEl.textContent = `✗ ${data.msg}`;
+                    msgEl.className = 'validation-msg error';
+                }
+            } catch (err) {
+                console.error(err);
+                msgEl.textContent = '✗ Could not validate';
+                msgEl.className = 'validation-msg error';
+            }
+        });
+
+        // Validate Child Student ID (for parent)
+        document.getElementById('childStudentID')?.addEventListener('blur', async (e) => {
+            const studentID = e.target.value.trim();
+            const msgEl = document.getElementById('childIDMsg');
+            
+            if (!studentID) return;
+
+            try {
+                // Check if student exists (already registered)
+                const res = await fetch(`${API_URL}/students/${studentID}`);
+                const data = await res.json();
+                
+                if (data && data.studentID) {
+                    msgEl.textContent = `✓ Student found: ${data.firstName} ${data.lastName}`;
+                    msgEl.className = 'validation-msg success';
+                } else {
+                    msgEl.textContent = '✗ Student not found. They must register first.';
+                    msgEl.className = 'validation-msg error';
+                }
+            } catch (err) {
+                msgEl.textContent = '✗ Student not found';
+                msgEl.className = 'validation-msg error';
+            }
+        });
+
+        // Check email availability
+        async function checkEmail(emailInputId, msgElementId) {
+            const email = document.getElementById(emailInputId).value.trim();
+            const msgEl = document.getElementById(msgElementId);
+            
+            if (!email) return;
+
+            try {
+                const res = await fetch(`${API_URL}/api/registration/check-email/${email}`);
+                const data = await res.json();
+                
+                if (data.ok) {
+                    msgEl.textContent = '✓ Email available';
+                    msgEl.className = 'validation-msg success';
+                } else {
+                    msgEl.textContent = '✗ Email already in use';
+                    msgEl.className = 'validation-msg error';
+                }
+            } catch (err) {
+                msgEl.textContent = '';
+            }
+        }
+
+        document.getElementById('studentEmail')?.addEventListener('blur', () => {
+            checkEmail('studentEmail', 'emailMsg');
+        });
+
+        document.getElementById('parentEmail')?.addEventListener('blur', () => {
+            checkEmail('parentEmail', 'parentEmailMsg');
+        });
+
+        // Preview face photo
+        document.getElementById('facePhoto')?.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const preview = document.getElementById('preview');
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Student registration submit
+        document.getElementById('studentForm')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const password = document.getElementById('studentPassword').value;
+            const confirmPassword = document.getElementById('studentConfirmPassword').value;
+            
+            if (password !== confirmPassword) {
+                document.getElementById('studentMsg').textContent = 'Passwords do not match';
+                document.getElementById('studentMsg').style.color = 'red';
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('studentID', document.getElementById('studentID').value.trim());
+            formData.append('firstName', document.getElementById('studentFirstName').value.trim());
+            formData.append('lastName', document.getElementById('studentLastName').value.trim());
+            formData.append('email', document.getElementById('studentEmail').value.trim());
+            formData.append('password', password);
+            formData.append('facePhoto', document.getElementById('facePhoto').files[0]);
+
+            try {
+                const res = await fetch(`${API_URL}/api/registration/student`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await res.json();
+                const msgEl = document.getElementById('studentMsg');
+                
+                if (data.ok) {
+                    msgEl.textContent = data.msg;
+                    msgEl.style.color = 'green';
+                    
+                    // Redirect to success page after 2 seconds
+                    setTimeout(() => {
+                        window.location.href = 'registration_success.html';
+                    }, 2000);
+                } else {
+                    msgEl.textContent = data.msg || 'Registration failed';
+                    msgEl.style.color = 'red';
+                }
+            } catch (err) {
+                console.error(err);
+                document.getElementById('studentMsg').textContent = 'Registration failed. Please try again.';
+                document.getElementById('studentMsg').style.color = 'red';
+            }
+        });
+
+        // Parent registration submit
+        document.getElementById('parentForm')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const password = document.getElementById('parentPassword').value;
+            const confirmPassword = document.getElementById('parentConfirmPassword').value;
+            
+            if (password !== confirmPassword) {
+                document.getElementById('parentMsg').textContent = 'Passwords do not match';
+                document.getElementById('parentMsg').style.color = 'red';
+                return;
+            }
+
+            const data = {
+                childStudentID: document.getElementById('childStudentID').value.trim(),
+                relationship: document.getElementById('relationship').value,
+                firstName: document.getElementById('parentFirstName').value.trim(),
+                lastName: document.getElementById('parentLastName').value.trim(),
+                contactNumber: document.getElementById('contactNumber').value.trim(),
+                email: document.getElementById('parentEmail').value.trim(),
+                password: password
+            };
+
+            try {
+                const res = await fetch(`${API_URL}/api/registration/parent`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await res.json();
+                const msgEl = document.getElementById('parentMsg');
+                
+                if (result.ok) {
+                    msgEl.textContent = result.msg;
+                    msgEl.style.color = 'green';
+                    
+                    setTimeout(() => {
+                        window.location.href = 'registration_success.html';
+                    }, 2000);
+                } else {
+                    msgEl.textContent = result.msg || 'Registration failed';
+                    msgEl.style.color = 'red';
+                }
+            } catch (err) {
+                console.error(err);
+                document.getElementById('parentMsg').textContent = 'Registration failed. Please try again.';
+                document.getElementById('parentMsg').style.color = 'red';
+            }
+        });
+    </script>
+</body>
+</html>

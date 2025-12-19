@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parent Dashboard - EduFace</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background: #E8E8E8; }
+        .container { display: flex; min-height: 100vh; }
+        
+        .sidebar { width: 280px; background: white; border-radius: 21px; margin: 30px 0 30px 23px; padding: 30px 0; box-shadow: 0 4px 20px rgba(0,0,0,0.08); position: relative; }
+        .logo { color: #1E3A8A; font-size: 35px; font-weight: 600; text-align: center; margin-bottom: 60px; }
+        .nav-item { display: flex; align-items: center; padding: 18px 30px; cursor: pointer; transition: all 0.3s; position: relative; color: #C7C7C7; font-size: 20px; font-weight: 600; }
+        .nav-item:hover { background: linear-gradient(90deg, rgba(239,239,239,0.5) 0%, rgba(236,72,153,0.2) 100%); color: #EC4899; }
+        .nav-item.active { background: linear-gradient(90deg, rgba(239,239,239,0.5) 0%, rgba(236,72,153,0.41) 100%); color: #EC4899; }
+        .nav-item.active::after { content: ''; position: absolute; right: 0; width: 10px; height: 100%; background: #EC4899; border-radius: 25px 0 0 25px; }
+        .nav-icon { width: 45px; height: 45px; margin-right: 15px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+        .logout-btn { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); background: #ef4444; color: white; padding: 10px 30px; border-radius: 10px; cursor: pointer; border: none; font-weight: 600; }
+        
+        .main-content { flex: 1; padding: 30px 40px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+        .page-title { font-size: 42px; color: #1E293B; font-weight: 600; }
+        .user-profile { display: flex; align-items: center; gap: 15px; }
+        .user-avatar { width: 50px; height: 50px; background: #EC4899; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 20px; }
+        
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 25px; margin-bottom: 40px; }
+        .stat-card { background: white; border-radius: 20px; padding: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .stat-value { font-size: 48px; font-weight: 700; margin-bottom: 10px; color: #EC4899; }
+        .stat-label { font-size: 18px; color: #64748B; }
+        .card { background: white; border-radius: 20px; padding: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 25px; }
+        .section-title { font-size: 28px; color: #1E293B; margin-bottom: 25px; font-weight: 600; }
+        
+        .emergency-alert { background: linear-gradient(135deg, #FEE2E2 0%, #FCA5A5 100%); border: 3px solid #EF4444; border-radius: 15px; padding: 20px; margin-bottom: 30px; display: flex; align-items: center; gap: 20px; animation: pulse 2s infinite; }
+        .alert-icon { font-size: 48px; }
+        @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); } 50% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } }
+        
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #E2E8F0; }
+        th { background: #F8FAFC; color: #64748B; font-weight: 600; }
+        .badge { padding: 6px 12px; border-radius: 20px; font-size: 14px; font-weight: 500; }
+        .badge-present { background: #D1FAE5; color: #059669; }
+        .badge-absent { background: #FEE2E2; color: #DC2626; }
+        .badge-late { background: #FEF3C7; color: #D97706; }
+        
+        .btn { padding: 12px 24px; border: none; border-radius: 10px; cursor: pointer; font-weight: 500; font-size: 16px; background: #EC4899; color: white; transition: all 0.3s; }
+        .btn:hover { background: #DB2777; }
+        
+        .setting-group { display: flex; flex-direction: column; gap: 15px; }
+        .radio-option { display: flex; align-items: flex-start; padding: 15px; border: 2px solid #E2E8F0; border-radius: 10px; cursor: pointer; }
+        .radio-option:hover { border-color: #EC4899; background: #FDF2F8; }
+        
+        .loading { text-align: center; padding: 40px; }
+        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #EC4899; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 20px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .toast { position: fixed; top: 20px; right: 20px; background: #10B981; color: white; padding: 15px 25px; border-radius: 10px; z-index: 9999; display: none; }
+        .toast.show { display: block; animation: slideIn 0.3s; }
+        .toast.error { background: #EF4444; }
+        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <aside class="sidebar">
+            <div class="logo">EduFace</div>
+            <nav>
+                <div class="nav-item active" onclick="showPage('dashboard')">
+                    <div class="nav-icon">📊</div><span>Dashboard</span>
+                </div>
+                <div class="nav-item" onclick="showPage('attendance')">
+                    <div class="nav-icon">📅</div><span>Attendance</span>
+                </div>
+                <div class="nav-item" onclick="showPage('courses')">
+                    <div class="nav-icon">📚</div><span>Courses</span>
+                </div>
+                <div class="nav-item" onclick="showPage('settings')">
+                    <div class="nav-icon">⚙️</div><span>Settings</span>
+                </div>
+            </nav>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </aside>
+
+        <main class="main-content">
+            <div id="content"><div class="loading"><div class="spinner"></div>Loading...</div></div>
+        </main>
+    </div>
+    <div id="toast" class="toast"></div>
+
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+        let currentUser = null;
+
+        function checkAuth() {
+            const userStr = localStorage.getItem('eduface_user');
+            if (!userStr) {
+                window.location.href = 'parent_login.html';
+                return null;
+            }
+            const user = JSON.parse(userStr);
+            if (user.role !== 'Parent') {
+                alert('Access denied');
+                window.location.href = 'index.html';
+                return null;
+            }
+            return user;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            currentUser = checkAuth();
+            if (currentUser) showPage('dashboard');
+        });
+
+        function showPage(page) {
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            event?.currentTarget?.classList.add('active');
+            const content = document.getElementById('content');
+            content.innerHTML = '<div class="loading"><div class="spinner"></div>Loading...</div>';
+
+            switch(page) {
+                case 'dashboard': loadDashboard(); break;
+                case 'attendance': loadAttendance(); break;
+                case 'courses': loadCourses(); break;
+                case 'settings': loadSettings(); break;
+            }
+        }
+
+        async function loadDashboard() {
+            try {
+                const response = await fetch(`${API_URL}/parents/${currentUser.id}/summary`);
+                const data = await response.json();
+                
+                if (!data.ok) throw new Error(data.msg);
+
+                const summary = data.summary || {};
+                const child = summary.childInfo || {};
+                const stats = summary.attendanceStats || {};
+                const hasEmergency = (summary.consecutiveAbsences || 0) >= 3;
+                
+                document.getElementById('content').innerHTML = `
+                    <header class="header">
+                        <h1 class="page-title">Dashboard</h1>
+                        <div class="user-profile">
+                            <span style="font-size: 18px; color: #64748B;">${currentUser.firstName} ${currentUser.lastName}</span>
+                            <div class="user-avatar">${currentUser.firstName[0]}${currentUser.lastName[0]}</div>
+                        </div>
+                    </header>
+
+                    ${hasEmergency ? `
+                        <div class="emergency-alert">
+                            <div class="alert-icon">🚨</div>
+                            <div>
+                                <strong style="font-size: 20px; color: #DC2626;">Emergency Alert!</strong>
+                                <p style="color: #7F1D1D; margin-top: 5px;">Your child has been absent for ${summary.consecutiveAbsences} consecutive days. Please contact the school immediately.</p>
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    <div class="card" style="background: linear-gradient(135deg, #FDF2F8 0%, #FCE7F3 100%); border-left: 5px solid #EC4899;">
+                        <h2 style="color: #831843; margin-bottom: 15px;">Child Information</h2>
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+                            <div>
+                                <div style="color: #9F1239; font-size: 14px;">Student Name</div>
+                                <div style="font-size: 20px; font-weight: 600; color: #831843;">${child.fullName || 'N/A'}</div>
+                            </div>
+                            <div>
+                                <div style="color: #9F1239; font-size: 14px;">Student ID</div>
+                                <div style="font-size: 20px; font-weight: 600; color: #831843;">${child.studentID || 'N/A'}</div>
+                            </div>
+                            <div>
+                                <div style="color: #9F1239; font-size: 14px;">Course & Year</div>
+                                <div style="font-size: 20px; font-weight: 600; color: #831843;">${child.course || 'N/A'} - Year ${child.yearLevel || 'N/A'}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value">${stats.presentCount || 0}</div>
+                            <div class="stat-label">Days Present</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${stats.lateCount || 0}</div>
+                            <div class="stat-label">Days Late</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${stats.absentCount || 0}</div>
+                            <div class="stat-label">Days Absent</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${stats.attendanceRate || 0}%</div>
+                            <div class="stat-label">Attendance Rate</div>
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                document.getElementById('content').innerHTML = `
+                    <div class="card"><div style="color: #EF4444; padding: 20px;">Error: ${error.message}</div></div>
+                `;
+            }
+        }
+
+        async function loadAttendance() {
+            try {
+                const response = await fetch(`${API_URL}/parents/${currentUser.id}/child-attendance`);
+                const data = await response.json();
+                
+                if (!data.ok) throw new Error(data.msg);
+
+                document.getElementById('content').innerHTML = `
+                    <header class="header">
+                        <h1 class="page-title">Attendance Records</h1>
+                        <div class="user-profile">
+                            <span style="font-size: 18px; color: #64748B;">${currentUser.firstName} ${currentUser.lastName}</span>
+                            <div class="user-avatar">${currentUser.firstName[0]}${currentUser.lastName[0]}</div>
+                        </div>
+                    </header>
+
+                    <div class="card">
+                        <h2 class="section-title">Complete Attendance History</h2>
+                        <table>
+                            <thead>
+                                <tr><th>Date</th><th>Course</th><th>Status</th><th>Time In</th><th>Time Out</th><th>Remarks</th></tr>
+                            </thead>
+                            <tbody>
+                                ${data.records && data.records.length > 0
+                                    ? data.records.map(r => `
+                                        <tr>
+                                            <td>${new Date(r.date).toLocaleDateString()}</td>
+                                            <td>${r.courseCode} - ${r.courseName}</td>
+                                            <td><span class="badge badge-${r.status.toLowerCase()}">${r.status}</span></td>
+                                            <td>${r.timeIn || 'N/A'}</td>
+                                            <td>${r.timeOut || 'N/A'}</td>
+                                            <td>${r.remarks || '-'}</td>
+                                        </tr>
+                                    `).join('')
+                                    : '<tr><td colspan="6" style="text-align: center; padding: 30px;">No records found</td></tr>'
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            } catch (error) {
+                document.getElementById('content').innerHTML = `<div class="card"><div style="color: #EF4444;">Error: ${error.message}</div></div>`;
+            }
+        }
+
+        async function loadCourses() {
+            try {
+                const response = await fetch(`${API_URL}/parents/${currentUser.id}/child-courses`);
+                const data = await response.json();
+                
+                if (!data.ok) throw new Error(data.msg);
+
+                document.getElementById('content').innerHTML = `
+                    <header class="header">
+                        <h1 class="page-title">Courses</h1>
+                        <div class="user-profile">
+                            <span style="font-size: 18px; color: #64748B;">${currentUser.firstName} ${currentUser.lastName}</span>
+                            <div class="user-avatar">${currentUser.firstName[0]}${currentUser.lastName[0]}</div>
+                        </div>
+                    </header>
+
+                    <div class="card">
+                        <h2 class="section-title">Enrolled Courses</h2>
+                        <table>
+                            <thead>
+                                <tr><th>Code</th><th>Course Name</th><th>Teacher</th><th>Schedule</th><th>Room</th></tr>
+                            </thead>
+                            <tbody>
+                                ${data.courses && data.courses.length > 0
+                                    ? data.courses.map(c => `
+                                        <tr>
+                                            <td><strong>${c.courseCode}</strong></td>
+                                            <td>${c.courseName}</td>
+                                            <td>${c.teacherName || 'TBA'}</td>
+                                            <td>${c.schedule || 'TBA'}</td>
+                                            <td>${c.room || 'TBA'}</td>
+                                        </tr>
+                                    `).join('')
+                                    : '<tr><td colspan="5" style="text-align: center; padding: 30px;">No courses found</td></tr>'
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            } catch (error) {
+                document.getElementById('content').innerHTML = `<div class="card"><div style="color: #EF4444;">Error: ${error.message}</div></div>`;
+            }
+        }
+
+        async function loadSettings() {
+            try {
+                const response = await fetch(`${API_URL}/parents/${currentUser.id}/settings`);
+                const data = await response.json();
+                
+                const settings = data.ok ? data.settings : { summaryPeriod: 'weekly', alertOnAbsent: true, emergencyAlert: true };
+
+                document.getElementById('content').innerHTML = `
+                    <header class="header">
+                        <h1 class="page-title">Settings</h1>
+                        <div class="user-profile">
+                            <span style="font-size: 18px; color: #64748B;">${currentUser.firstName} ${currentUser.lastName}</span>
+                            <div class="user-avatar">${currentUser.firstName[0]}${currentUser.lastName[0]}</div>
+                        </div>
+                    </header>
+
+                    <div class="card">
+                        <h2 class="section-title">Notification Settings</h2>
+                        
+                        <div style="margin-bottom: 30px;">
+                            <h3 style="margin-bottom: 15px; color: #1E293B;">Summary Period</h3>
+                            <div class="setting-group">
+                                <label class="radio-option">
+                                    <input type="radio" name="period" value="daily" ${settings.summaryPeriod === 'daily' ? 'checked' : ''} style="margin-right: 10px;">
+                                    <div>
+                                        <strong>Daily (24 hours)</strong>
+                                        <p style="color: #64748B; font-size: 14px;">Receive updates every day</p>
+                                    </div>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="period" value="weekly" ${settings.summaryPeriod === 'weekly' ? 'checked' : ''} style="margin-right: 10px;">
+                                    <div>
+                                        <strong>Weekly (7 days)</strong>
+                                        <p style="color: #64748B; font-size: 14px;">Receive updates every week</p>
+                                    </div>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="period" value="monthly" ${settings.summaryPeriod === 'monthly' ? 'checked' : ''} style="margin-right: 10px;">
+                                    <div>
+                                        <strong>Monthly (30 days)</strong>
+                                        <p style="color: #64748B; font-size: 14px;">Receive updates every month</p>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div style="margin-bottom: 30px;">
+                            <h3 style="margin-bottom: 15px; color: #1E293B;">Alert Preferences</h3>
+                            <label style="display: flex; align-items: center; padding: 15px; border: 2px solid #E2E8F0; border-radius: 10px; margin-bottom: 10px; cursor: pointer;">
+                                <input type="checkbox" id="alertOnAbsent" ${settings.alertOnAbsent ? 'checked' : ''} style="margin-right: 10px;">
+                                <div>
+                                    <strong>Notify when absent</strong>
+                                    <p style="color: #64748B; font-size: 14px;">Get notified whenever your child is marked absent</p>
+                                </div>
+                            </label>
+                            <label style="display: flex; align-items: center; padding: 15px; border: 2px solid #E2E8F0; border-radius: 10px; cursor: pointer;">
+                                <input type="checkbox" id="emergencyAlert" ${settings.emergencyAlert ? 'checked' : ''} style="margin-right: 10px;">
+                                <div>
+                                    <strong>Emergency alert (3+ consecutive absences)</strong>
+                                    <p style="color: #64748B; font-size: 14px;">Get urgent notification for multiple consecutive absences</p>
+                                </div>
+                            </label>
+                        </div>
+
+                        <button class="btn" onclick="saveSettings()">Save Settings</button>
+                    </div>
+                `;
+            } catch (error) {
+                document.getElementById('content').innerHTML = `<div class="card"><div style="color: #EF4444;">Error: ${error.message}</div></div>`;
+            }
+        }
+
+        async function saveSettings() {
+            try {
+                const period = document.querySelector('input[name="period"]:checked').value;
+                const alertOnAbsent = document.getElementById('alertOnAbsent').checked;
+                const emergencyAlert = document.getElementById('emergencyAlert').checked;
+
+                const response = await fetch(`${API_URL}/parents/${currentUser.id}/settings`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ summaryPeriod: period, alertOnAbsent, emergencyAlert })
+                });
+
+                const data = await response.json();
+                
+                if (data.ok) {
+                    showToast('Settings saved successfully!');
+                } else {
+                    showToast(data.msg || 'Failed to save settings', 'error');
+                }
+            } catch (error) {
+                showToast('Error: ' + error.message, 'error');
+            }
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast show' + (type === 'error' ? ' error' : '');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('eduface_user');
+                window.location.href = 'parent_login.html';
+            }
+        }
+    </script>
+</body>
+</html>
