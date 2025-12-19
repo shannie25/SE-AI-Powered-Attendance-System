@@ -94,10 +94,9 @@ The system's overall data flow and interaction between components can be illustr
 
 ## Procedural Design
 
-- This procedural design outlines the complete flow of the **AI-Powered Attendance Monitoring System**, detailing how **Students**, **Teachers**, and **Admins** interact with the platform.  
+- This procedural design outlines the complete flow of the **AI-Powered Attendance Monitoring System**, detailing how **Students**, **Teachers**, **Admins** and **Parents** interact with the platform.  
 - It includes **user type selection, authentication, password recovery, facial recognition attendance, dashboard features, and administrative controls.**
-<img width="1538" height="1562" alt="Procedural Design" src="https://github.com/user-attachments/assets/55408c94-1d99-475d-a151-5f845fc36c5e" />
-
+<img width="1578" height="1562" alt="Procedural Design" src="https://github.com/user-attachments/assets/0a6105f4-12f8-44b2-841d-ae4f60d0eea6" />
 
 ## 1. System Entry
 
@@ -105,7 +104,8 @@ The system's overall data flow and interaction between components can be illustr
 - The system prompts the user to select their **User Type**:
   - Student  
   - Teacher  
-  - Admin  
+  - Admin
+  - Parent  
 
 ## 2. Account Authentication
 
@@ -157,12 +157,21 @@ Once logged in, the **Student Dashboard** allows the student to:
 
 Once logged in, the **Admin Dashboard** allows the admin to:
 
+- Access Admin Dashboard
 - Manage user accounts (**Add, Edit, Delete**)  
-- Train the AI facial recognition model  
-- Manage notifications / SMS logs  
-- Backup or restore the database  
+- View Attendance Reports by filtering the dates and roles and status.
+- Generate all type of system reports
 - Sign out (ends the session)  
 
+## 6. Parent Workflow
+
+Once logged in, the **Parent Dashboard** allows the parent to:
+
+ - Access Parent Dashboard (Child's Attendance Record)
+ - View their Child's Schedule
+ - View Notifications
+ - Sign out (ends the session)
+ 
 ## 6. System Exit
 
 - All user workflows end when the user selects **Sign Out**.  
