@@ -75,7 +75,77 @@ This design ensures **functional independence**, making the system more scalable
 3. **Data Layer**
    - Responsible for storing and managing data in the **MySQL Database**.
    - Uses encryptioin and authentication to ensure secure data access and storage.
-  
+   
+## Data Design
+The EduFace Attendance System database is designed to support a secure, scalable, and reliable facial-recognition-based attendance platform.
+It manages students, teachers, administrators, courses, attendance records, face embeddings, parents/guardians, notifications, reports, and audit logs.
+
+The data design follows relational database principles using MySQL 8.0, with strong enforcement of primary keys, foreign keys, constraints, indexes, triggers, views, and stored procedures. An Entity Relationship Diagram (ERD) is used to visualize all entities and their relationships.
+
+Student
+- Stores registered student accounts and academic information.
+- Identified by studentID (PK)
+- Includes login credentials, course, year level, and enrollment status
+- One student may have face data, attendance records, parents, notifications, and audit logs
+
+Teacher
+-Stores teacher accounts and department information.
+-Identified by teacherID (PK)
+-A teacher can handle multiple courses
+
+Administrator
+-Manages the entire system.
+-Identified by adminID (PK)
+-Responsible for approving registrations, managing valid student IDs, generating reports, and system monitoring
+
+Course
+-Represents academic subjects offered by the institution.
+-Identified by courseID (PK)
+-Assigned to one teacher
+-Controls attendance scanning availability
+
+Face_Data
+-Stores facial embeddings only, not raw images.
+-Identified by faceDataID (PK)
+-Linked to exactly one student
+Used for facial recognition during attendance scanning
+
+No actual images are reused or fetched. Only encrypted face encodings are stored.
+
+Attendance
+Stores daily attendance records.
+Identified by attendanceID (PK)
+Linked to one student and one ourse
+Enforces one attendance per student per course per day
+
+Parent_Guardian
+Stores parent or guardian accounts.
+Linked to exactly one student
+Receives attendance notifications
+
+Notification
+Stores messages sent to parents/guardians.
+Generated based on attendance events
+Supports SMS, Email, and Push notifications
+
+Report
+Stores generated attendance reports.
+Created by administrators
+Supports PDF, Excel, and CSV formats
+Audit_Log
+Tracks all system activities.
+Logs actions from students, teachers, admins, and parents
+
+Used for accountability and security auditing
+Valid_Student_I
+Admin-managed allowlist of student IDs.
+Ensures only authorized students can register
+Prevents unauthorized account creation
+Pending_Registration
+Stores registration requests awaiting admin approval.
+Supports student and parent registrations
+Ues triggers and procedures to enforce rules
+
 ## Architectural Flow
 The system's overall data flow and interaction between components can be illustrated as follows:
 ```
