@@ -96,7 +96,8 @@ The system's overall data flow and interaction between components can be illustr
 
 - This procedural design outlines the complete flow of the **AI-Powered Attendance Monitoring System**, detailing how **Students**, **Teachers**, and **Admins** interact with the platform.  
 - It includes **user type selection, authentication, password recovery, facial recognition attendance, dashboard features, and administrative controls.**
-<img width="1357" height="1562" alt="Procedural Design" src="https://github.com/user-attachments/assets/e7c1a7a7-309a-48b5-b2d6-9945f84902e1" />
+<img width="1538" height="1562" alt="Procedural Design" src="https://github.com/user-attachments/assets/55408c94-1d99-475d-a151-5f845fc36c5e" />
+
 
 ## 1. System Entry
 
