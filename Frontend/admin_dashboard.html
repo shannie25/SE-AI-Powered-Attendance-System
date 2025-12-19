@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - EduFace</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background: #E8E8E8; }
+        .container { display: flex; min-height: 100vh; }
+        
+        .sidebar { width: 280px; background: white; border-radius: 21px; margin: 30px 0 30px 23px; padding: 30px 0; box-shadow: 0 4px 20px rgba(0,0,0,0.08); position: relative; }
+        .logo { color: #1E3A8A; font-size: 35px; font-weight: 600; text-align: center; margin-bottom: 60px; }
+        .nav-item { display: flex; align-items: center; padding: 18px 30px; cursor: pointer; transition: all 0.3s; position: relative; color: #C7C7C7; font-size: 20px; font-weight: 600; }
+        .nav-item:hover { background: linear-gradient(90deg, rgba(239,239,239,0.5) 0%, rgba(249,115,22,0.2) 100%); color: #F97316; }
+        .nav-item.active { background: linear-gradient(90deg, rgba(239,239,239,0.5) 0%, rgba(249,115,22,0.41) 100%); color: #F97316; }
+        .nav-item.active::after { content: ''; position: absolute; right: 0; width: 10px; height: 100%; background: #F97316; border-radius: 25px 0 0 25px; }
+        .nav-icon { width: 45px; height: 45px; margin-right: 15px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+        .logout-btn { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); background: #ef4444; color: white; padding: 10px 30px; border-radius: 10px; cursor: pointer; border: none; font-weight: 600; }
+        
+        .main-content { flex: 1; padding: 30px 40px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+        .page-title { font-size: 42px; color: #1E293B; font-weight: 600; }
+        .user-profile { display: flex; align-items: center; gap: 15px; }
+        .user-avatar { width: 50px; height: 50px; background: #F97316; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 20px; }
+        
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 25px; margin-bottom: 40px; }
+        .stat-card { background: white; border-radius: 20px; padding: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .stat-value { font-size: 48px; font-weight: 700; margin-bottom: 10px; color: #F97316; }
+        .stat-label { font-size: 18px; color: #64748B; }
+        .card { background: white; border-radius: 20px; padding: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 25px; }
+        .section-title { font-size: 28px; color: #1E293B; margin-bottom: 25px; font-weight: 600; }
+        
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #E2E8F0; }
+        th { background: #F8FAFC; color: #64748B; font-weight: 600; }
+        .badge { padding: 6px 12px; border-radius: 20px; font-size: 14px; font-weight: 500; }
+        .badge-success { background: #D1FAE5; color: #059669; }
+        .badge-danger { background: #FEE2E2; color: #DC2626; }
+        .badge-warning { background: #FEF3C7; color: #D97706; }
+        .badge-info { background: #DBEAFE; color: #1D4ED8; }
+        
+        .btn { padding: 12px 24px; border: none; border-radius: 10px; cursor: pointer; font-weight: 500; transition: all 0.3s; font-size: 16px; }
+        .btn-primary { background: #F97316; color: white; }
+        .btn-primary:hover { background: #EA580C; }
+        .btn-secondary { background: #6366F1; color: white; }
+        .btn-secondary:hover { background: #4F46E5; }
+        .btn-success { background: #10B981; color: white; }
+        .btn-success:hover { background: #059669; }
+        .btn-danger { background: #EF4444; color: white; }
+        .btn-danger:hover { background: #DC2626; }
+        .btn-sm { padding: 8px 16px; font-size: 14px; }
+        
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center; overflow-y: auto; }
+        .modal.show { display: flex; }
+        .modal-content { background: white; padding: 40px; border-radius: 20px; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; margin: 20px; }
+        .modal-title { font-size: 24px; font-weight: 600; margin-bottom: 20px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 500; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px; border: 2px solid #E2E8F0; border-radius: 8px; font-size: 14px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        
+        .toast { position: fixed; top: 20px; right: 20px; background: #10B981; color: white; padding: 15px 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 9999; display: none; }
+        .toast.show { display: block; animation: slideIn 0.3s ease-out; }
+        .toast.error { background: #EF4444; }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        
+        .loading { text-align: center; padding: 40px; }
+        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #F97316; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 20px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .action-buttons { display: flex; gap: 10px; }
+        .registration-details { background: #F8FAFC; padding: 15px; border-radius: 10px; margin: 15px 0; }
+        .registration-details p { margin: 5px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <aside class="sidebar">
+            <div class="logo">EduFace</div>
+            <nav>
+                <div class="nav-item active" onclick="showPage('dashboard')">
+                    <div class="nav-icon">📊</div><span>Dashboard</span>
+                </div>
+                <div class="nav-item" onclick="showPage('students')">
+                    <div class="nav-icon">👥</div><span>Students</span>
+                </div>
+                <div class="nav-item" onclick="showPage('teachers')">
+                    <div class="nav-icon">👨‍🏫</div><span>Teachers</span>
+                </div>
+                <div class="nav-item" onclick="showPage('courses')">
+                    <div class="nav-icon">📚</div><span>Courses</span>
+                </div>
+                <div class="nav-item" onclick="showPage('registrations')">
+                    <div class="nav-icon">📋</div><span>Registrations</span>
+                </div>
+                <div class="nav-item" onclick="showPage('validids')">
+                    <div class="nav-icon">🆔</div><span>Valid IDs</span>
+                </div>
+            </nav>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </aside>
+
+        <main class="main-content">
+            <div id="content"><div class="loading"><div class="spinner"></div>Loading...</div></div>
+        </main>
+    </div>
+
+    <!-- Add Course Modal -->
+    <div id="courseModal" class="modal">
+        <div class="modal-content">
+            <h2 class="modal-title">Add New Course</h2>
+            <form id="courseForm">
+                <div class="form-group">
+                    <label>Course Code *</label>
+                    <input type="text" id="courseCode" required placeholder="e.g., CS-101">
+                </div>
+                <div class="form-group">
+                    <label>Course Name *</label>
+                    <input type="text" id="courseName" required placeholder="e.g., Introduction to Programming">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Units *</label>
+                        <input type="number" id="units" value="3" min="1" max="6" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Year Level *</label>
+                        <select id="yearLevel">
+                            <option value="1">1st Year</option>
+                            <option value="2">2nd Year</option>
+                            <option value="3">3rd Year</option>
+                            <option value="4">4th Year</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Teacher</label>
+                    <select id="teacherSelect"></select>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 30px;">
+                    <button type="submit" class="btn btn-primary">Save Course</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('courseModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Teacher Modal -->
+    <div id="teacherModal" class="modal">
+        <div class="modal-content">
+            <h2 class="modal-title">Add New Teacher</h2>
+            <form id="teacherForm">
+                <div class="form-group">
+                    <label>Teacher ID *</label>
+                    <input type="text" id="teacherID" required placeholder="e.g., TCH001">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>First Name *</label>
+                        <input type="text" id="teacherFirstName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Last Name *</label>
+                        <input type="text" id="teacherLastName" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Email *</label>
+                    <input type="email" id="teacherEmail" required placeholder="teacher@eduface.com">
+                </div>
+                <div class="form-group">
+                    <label>Password *</label>
+                    <input type="password" id="teacherPassword" required placeholder="Minimum 8 characters">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Department *</label>
+                        <input type="text" id="teacherDepartment" required placeholder="e.g., Computer Science">
+                    </div>
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="text" id="teacherPhone" placeholder="09123456789">
+                    </div>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 30px;">
+                    <button type="submit" class="btn btn-primary">Create Teacher</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('teacherModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Valid ID Modal -->
+    <div id="validIDModal" class="modal">
+        <div class="modal-content">
+            <h2 class="modal-title">Add Valid Student ID</h2>
+            <form id="validIDForm">
+                <div class="form-group">
+                    <label>Student ID *</label>
+                    <input type="text" id="validStudentID" required placeholder="e.g., 2023-00001">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>First Name *</label>
+                        <input type="text" id="validFirstName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Last Name *</label>
+                        <input type="text" id="validLastName" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Course *</label>
+                        <input type="text" id="validCourse" required placeholder="e.g., BSCS">
+                    </div>
+                    <div class="form-group">
+                        <label>Year Level *</label>
+                        <select id="validYearLevel">
+                            <option value="1">1st Year</option>
+                            <option value="2">2nd Year</option>
+                            <option value="3">3rd Year</option>
+                            <option value="4">4th Year</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Section</label>
+                    <input type="text" id="validSection" placeholder="e.g., CS-1A">
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 30px;">
+                    <button type="submit" class="btn btn-primary">Add Valid ID</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('validIDModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Review Registration Modal -->
+    <div id="reviewModal" class="modal">
+        <div class="modal-content">
+            <h2 class="modal-title">Review Registration</h2>
+            <div id="reviewContent"></div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+        let currentUser = null;
+
+        function checkAuth() {
+            const userStr = localStorage.getItem('eduface_user');
+            if (!userStr) {
+                window.location.href = 'admin_login.html';
+                return null;
+            }
+            const user = JSON.parse(userStr);
+            if (user.role !== 'Admin') {
+                alert('Access denied. Admins only.');
+                window.location.href = 'index.html';
+                return null;
+            }
+            return user;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            currentUser = checkAuth();
+            if (currentUser) showPage('dashboard');
+        });
+
+        function showPage(page) {
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            event?.currentTarget?.classList.add('active');
+            
+            const content = document.getElementById('content');
+            content.innerHTML = '<div class="loading"><div class="spinner"></div>Loading...</div>';
+
+            switch(page) {
+                case 'dashboard': loadDashboard(); break;
+                case 'students': loadStudents(); break;
+                case 'teachers': loadTeachers(); break;
+                case 'courses': loadCourses(); break;
+                case 'registrations': loadRegistrations(); break;
+                case 'validids': loadValidIDs(); break;
+            }
+        }
+
+        async function loadDashboard() {
+            try {
+                const response = await fetch(`${API_URL}/admin/dashboard/stats`);
+                const data = await response.json();
+                
+                if (!data.ok) throw new Error(data.msg);
+
+                document.getElementById('content').innerHTML = `
+                    <header class="header">
+                        <h1 class="page-title">Dashboard</h1>
+                        <div class="user-profile">
+                            <span style="font-size: 18px; color: #64748B;">${currentUser.username || 'Admin'}</span>
+                            <div class="user-avatar">A</div>
+                        </div>
+                    </header>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value">${data.stats.totalStudents || 0}</div>
+                            <div class="stat-label">Total Students</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${data.stats.totalTeachers || 0}</div>
+                            <div class="stat-label">Total Teachers</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${data.stats.totalCourses || 0}</div>
+                            <div class="stat-label">Total Courses</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${data.stats.attendanceRate || 0}%</div>
+                            <div class="stat-label">Attendance Rate</div>
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                document.getElementById('content').innerHTML = `
+                    <div class="card"><div style="color: #EF4444; padding: 20px;">Error: ${error.message}</div></div>
+                `;
+            }
+        }
+
+        async function loadStudents() {
+            try {
+                const response = await fetch(`${API_URL}/admin/students`);
+                const data = await response.json();
+                
+                if (!data.ok) throw new Error(data.msg);
+
+                document.getElementById('content').innerHTML = `
+                    <header class="header">
+                        <h1 class="page-title">Students</h1>
+                        <div class="user-profile">
+                            <span style="font-size: 18px; color: #64748B;">${currentUser.username || 'Admin'}</span>
+                            <div class="user-avatar">A</div>
+                        </div>
+                    </header>
+                    <div class="card">
+                        <h2 class="section-title">All Students</h2>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Student ID</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Course</th>
+                                    <th>Year</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.students && data.students.length > 0
+                                    ? data.students.map(s => `
+                                        <tr>
+                                            <td><strong>${s.studentID}</strong></td>
+                                            <td>${s.firstName} ${s.lastName}</td>
+                                            <td>${s.email || 'N/A'}</td>
+                                            <td>${s.course || 'N/A'}</td>
+                                            <td>${s.yearLevel || 'N/A'}</td>
+                                            <td><span class="badge badge-${s.accountStatus === 'Active' ? 'success' : 'danger'}">${s.accountStatus}</span></td>
+                                        </tr>
+                                    `).join('')
+                                    : '<tr><td colspan="6" style="text-align: center; padding: 30px;">No students found</td></tr>'
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            } catch (error) {
+                document.getElementById('content').innerHTML = `
+                    <div class="card"><div style="color: #EF4444; padding: 20px;">Error: ${error.message}</div></div>
+                `;
+            }
+        }
+
+        async function loadTeachers() {
+            try {
+                const response = await fetch(`${API_URL}/admin/teachers`);
+                const data = await response.json();
+                
+                if (!data.ok) throw new Error(data.msg);
+
+                document.getElementById('content').innerHTML = `
+                    <header class="header">
+                        <h1 class="page-title">Teachers</h1>
+                        <div class="user-profile">
+                            <span style="font-size: 18px; color: #64748B;">${currentUser.username || 'Admin'}</span>
+                            <div class="user-avatar">A</div>
+                        </div>
+                    </header>
+                    <div class="card">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                            <h2 class="section-title" style="margin: 0;">All Teachers</h2>
+                            <button class="btn btn-primary" onclick="openAddTeacherModal()">
+                                <span>➕</span> Add Teacher
+                            </button>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Teacher ID</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Department</th>
+                                    <th>Phone</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.teachers && data.teachers.length > 0
+                                    ? data.teachers.map(t => `
+                                        <tr>
+                                            <td><strong>${t.teacherID}</strong></td>
+                                            <td>${t.firstName} ${t.lastName}</td>
+                                            <td>${t.email}</td>
+                                            <td>${t.department || 'N/A'}</td>
+                                            <td>${t.phoneNumber || 'N/A'}</td>
+                                            <td><span class="badge badge-${t.isActive ? 'success' : 'danger'}">${t.isActive ? 'Active' : 'Inactive'}</span></td>
+                                        </tr>
+                                    `).join('')
+                                    : '<tr><td colspan="6" style="text-align: center; padding: 30px;">No teachers found</td></tr>'
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            } catch (error) {
+                document.getElementById('content').innerHTML = `
+                    <div class="card"><div style="color: #EF4444; padding: 20px;">Error: ${error.message}</div></div>
+                `;
+            }
+        }
+
+        async function loadCourses() {
+            try {
+                const response = await fetch(`${API_URL}/admin/courses`);
+                const data = await response.json();
+                
+                if (!data.ok) throw new Error(data.msg);
+
+                document.getElementById('content').innerHTML = `
+                    <header class="header">
+                        <h1 class="page-title">Courses</h1>
+                        <div class="user-profile">
+                            <span style="font-size: 18px; color: #64748B;">${currentUser.username || 'Admin'}</span>
+                            <div class="user-avatar">A</div>
+                        </div>
+                    </header>
+                    <div class="card">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                            <h2 class="section-title" style="margin: 0;">All Courses</h2>
+                            <button class="btn btn-primary" onclick="openAddCourseModal()">
+                                <span>➕</span> Add Course
+                            </button>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Name</th>
+                                    <th>Teacher</th>
+                                    <th>Units</th>
+                                    <th>Year</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.courses && data.courses.length > 0
+                                    ? data.courses.map(c => `
+                                        <tr>
+                                            <td><strong>${c.courseCode}</strong></td>
+                                            <td>${c.courseName}</td>
+                                            <td>${c.teacherName || 'Not Assigned'}</td>
+                                            <td>${c.units}</td>
+                                            <td>${c.yearLevel || 'N/A'}</td>
+                                            <td><span class="badge badge-${c.isActive ? 'success' : 'danger'}">${c.isActive ? 'Active' : 'Inactive'}</span></td>
+                                        </tr>
+                                    `).join('')
+                                    : '<tr><td colspan="6" style="text-align: center; padding: 30px;">No courses found</td></tr>'
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            } catch (error) {
+                document.getElementById('content').innerHTML = `
+                    <div class="card"><div style="color: #EF4444; padding: 20px;">Error: ${error.message}</div></div>
+                `;
+            }
+        }
+
+        async function loadRegistrations() {
+            try {
+                const response = await fetch(`${API_URL}/admin/registrations/pending`);
+                const data = await response.json();
+                
+                if (!data.ok) throw new Error(data.msg);
+
+                document.getElementById('content').innerHTML = `
+                    <header class="header">
+                        <h1 class="page-title">Pending Registrations</h1>
+                        <div class="user-profile">
+                            <span style="font-size: 18px; color: #64748B;">${currentUser.username || 'Admin'}</span>
+                            <div class="user-avatar">A</div>
+                        </div>
+                    </header>
+                    <div class="card">
+                        <h2 class="section-title">Review Applications</h2>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Role</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>ID/Details</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.registrations && data.registrations.length > 0
+                                    ? data.registrations.map(r => `
+                                        <tr>
+                                            <td>${new Date(r.submittedAt).toLocaleDateString()}</td>
+                                            <td><span class="badge badge-info">${r.role}</span></td>
+                                            <td>${r.firstName} ${r.lastName}</td>
+                                            <td>${r.email}</td>
+                                            <td>${r.studentID || r.childStudentID || 'N/A'}</td>
+                                            <td><span class="badge badge-warning">${r.status}</span></td>
+                                            <td class="action-buttons">
+                                                <button class="btn btn-success btn-sm" onclick="reviewRegistration(${r.registrationID}, '${r.role}')">
+                                                    Review
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    `).join('')
+                                    : '<tr><td colspan="7" style="text-align: center; padding: 30px;">No pending registrations</td></tr>'
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            } catch (error) {
+                document.getElementById('content').innerHTML = `
+                    <div class="card"><div style="color: #EF4444; padding: 20px;">Error: ${error.message}</div></div>
+                `;
+            }
+        }
+
+        async function loadValidIDs() {
+            try {
+                const response = await fetch(`${API_URL}/admin/valid-ids`);
+                const data = await response.json();
+                
+                if (!data.ok) throw new Error(data.msg);
+
+                document.getElementById('content').innerHTML = `
+                    <header class="header">
+                        <h1 class="page-title">Valid Student IDs</h1>
+                        <div class="user-profile">
+                            <span style="font-size: 18px; color: #64748B;">${currentUser.username || 'Admin'}</span>
+                            <div class="user-avatar">A</div>
+                        </div>
+                    </header>
+                    <div class="card">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                            <h2 class="section-title" style="margin: 0;">Valid Student IDs</h2>
+                            <button class="btn btn-primary" onclick="openAddValidIDModal()">
+                                <span>➕</span> Add Valid ID
+                            </button>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Student ID</th>
+                                    <th>Name</th>
+                                    <th>Course</th>
+                                    <th>Year</th>
+                                    <th>Section</th>
+                                    <th>Registered</th>
+                                    <th>Added</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.validIDs && data.validIDs.length > 0
+                                    ? data.validIDs.map(v => `
+                                        <tr>
+                                            <td><strong>${v.studentID}</strong></td>
+                                            <td>${v.firstName || ''} ${v.lastName || ''}</td>
+                                            <td>${v.course || 'N/A'}</td>
+                                            <td>${v.yearLevel || 'N/A'}</td>
+                                            <td>${v.section || 'N/A'}</td>
+                                            <td><span class="badge badge-${v.isRegistered ? 'success' : 'warning'}">${v.isRegistered ? 'Yes' : 'No'}</span></td>
+                                            <td>${new Date(v.addedAt).toLocaleDateString()}</td>
+                                        </tr>
+                                    `).join('')
+                                    : '<tr><td colspan="7" style="text-align: center; padding: 30px;">No valid IDs found</td></tr>'
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            } catch (error) {
+                document.getElementById('content').innerHTML = `
+                    <div class="card"><div style="color: #EF4444; padding: 20px;">Error: ${error.message}</div></div>
+                `;
+            }
+        }
+
+        // Modal Functions
+        async function openAddCourseModal() {
+            const teacherResponse = await fetch(`${API_URL}/admin/teachers`);
+            const teacherData = await teacherResponse.json();
+            
+            const select = document.getElementById('teacherSelect');
+            select.innerHTML = '<option value="">Select Teacher (Optional)</option>' +
+                (teacherData.teachers || []).map(t => 
+                    `<option value="${t.teacherID}">${t.firstName} ${t.lastName}</option>`
+                ).join('');
+            
+            document.getElementById('courseModal').classList.add('show');
+        }
+
+        function openAddTeacherModal() {
+            document.getElementById('teacherModal').classList.add('show');
+        }
+
+        function openAddValidIDModal() {
+            document.getElementById('validIDModal').classList.add('show');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('show');
+            if (modalId === 'courseModal') document.getElementById('courseForm').reset();
+            if (modalId === 'teacherModal') document.getElementById('teacherForm').reset();
+            if (modalId === 'validIDModal') document.getElementById('validIDForm').reset();
+        }
+
+        async function reviewRegistration(registrationID, role) {
+            try {
+                const response = await fetch(`${API_URL}/admin/registrations/${registrationID}`);
+                const data = await response.json();
+                
+                if (!data.ok) throw new Error(data.msg);
+
+                const reg = data.registration;
+                
+                document.getElementById('reviewContent').innerHTML = `
+                    <div class="registration-details">
+                        <p><strong>Role:</strong> ${reg.role}</p>
+                        <p><strong>Name:</strong> ${reg.firstName} ${reg.lastName}</p>
+                        <p><strong>Email:</strong> ${reg.email}</p>
+                        ${reg.studentID ? `<p><strong>Student ID:</strong> ${reg.studentID}</p>` : ''}
+                        ${reg.childStudentID ? `<p><strong>Child Student ID:</strong> ${reg.childStudentID}</p>` : ''}
+                        ${reg.relationship ? `<p><strong>Relationship:</strong> ${reg.relationship}</p>` : ''}
+                        ${reg.contactNumber ? `<p><strong>Contact:</strong> ${reg.contactNumber}</p>` : ''}
+                        <p><strong>Submitted:</strong> ${new Date(reg.submittedAt).toLocaleString()}</p>
+                    </div>
+                    <div class="form-group">
+                        <label>Review Notes</label>
+                        <textarea id="reviewNotes" rows="3" placeholder="Add notes about this registration..."></textarea>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="btn btn-success" onclick="approveRegistration(${registrationID}, '${reg.role}')">
+                            ✓ Approve
+                        </button>
+                        <button class="btn btn-danger" onclick="rejectRegistration(${registrationID})">
+                            ✗ Reject
+                        </button>
+                        <button class="btn btn-secondary" onclick="closeModal('reviewModal')">
+                            Cancel
+                        </button>
+                    </div>
+                `;
+                
+                document.getElementById('reviewModal').classList.add('show');
+            } catch (error) {
+                showToast('Error loading registration: ' + error.message, 'error');
+            }
+        }
+
+        async function approveRegistration(registrationID, role) {
+            try {
+                const notes = document.getElementById('reviewNotes').value;
+                
+                const response = await fetch(`${API_URL}/admin/registrations/${registrationID}/approve`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ notes, adminID: currentUser.id })
+                });
+
+                const data = await response.json();
+                
+                if (data.ok) {
+                    showToast('Registration approved successfully!');
+                    closeModal('reviewModal');
+                    loadRegistrations();
+                } else {
+                    showToast(data.msg || 'Failed to approve', 'error');
+                }
+            } catch (error) {
+                showToast('Error: ' + error.message, 'error');
+            }
+        }
+
+        async function rejectRegistration(registrationID) {
+            if (!confirm('Are you sure you want to reject this registration?')) return;
+            
+            try {
+                const notes = document.getElementById('reviewNotes').value;
+                
+                const response = await fetch(`${API_URL}/admin/registrations/${registrationID}/reject`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ notes, adminID: currentUser.id })
+                });
+
+                const data = await response.json();
+                
+                if (data.ok) {
+                    showToast('Registration rejected');
+                    closeModal('reviewModal');
+                    loadRegistrations();
+                } else {
+                    showToast(data.msg || 'Failed to reject', 'error');
+                }
+            } catch (error) {
+                showToast('Error: ' + error.message, 'error');
+            }
+        }
+
+        // Form Submissions
+        document.getElementById('courseForm').onsubmit = async (e) => {
+            e.preventDefault();
+            
+            const courseData = {
+                courseCode: document.getElementById('courseCode').value,
+                courseName: document.getElementById('courseName').value,
+                units: parseInt(document.getElementById('units').value),
+                teacherID: document.getElementById('teacherSelect').value || null,
+                yearLevel: parseInt(document.getElementById('yearLevel').value)
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/admin/courses`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(courseData)
+                });
+
+                const data = await response.json();
+                
+                if (data.ok) {
+                    showToast('Course added successfully!');
+                    closeModal('courseModal');
+                    loadCourses();
+                } else {
+                    showToast(data.msg || 'Failed to add course', 'error');
+                }
+            } catch (error) {
+                showToast('Error: ' + error.message, 'error');
+            }
+        };
+
+        document.getElementById('teacherForm').onsubmit = async (e) => {
+            e.preventDefault();
+            
+            const teacherData = {
+                teacherID: document.getElementById('teacherID').value,
+                firstName: document.getElementById('teacherFirstName').value,
+                lastName: document.getElementById('teacherLastName').value,
+                email: document.getElementById('teacherEmail').value,
+                password: document.getElementById('teacherPassword').value,
+                department: document.getElementById('teacherDepartment').value,
+                phoneNumber: document.getElementById('teacherPhone').value || null
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/admin/teachers`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(teacherData)
+                });
+
+                const data = await response.json();
+                
+                if (data.ok) {
+                    showToast('Teacher created successfully!');
+                    closeModal('teacherModal');
+                    loadTeachers();
+                } else {
+                    showToast(data.msg || 'Failed to create teacher', 'error');
+                }
+            } catch (error) {
+                showToast('Error: ' + error.message, 'error');
+            }
+        };
+
+        document.getElementById('validIDForm').onsubmit = async (e) => {
+            e.preventDefault();
+            
+            const validIDData = {
+                studentID: document.getElementById('validStudentID').value,
+                firstName: document.getElementById('validFirstName').value,
+                lastName: document.getElementById('validLastName').value,
+                course: document.getElementById('validCourse').value,
+                yearLevel: parseInt(document.getElementById('validYearLevel').value),
+                section: document.getElementById('validSection').value || null,
+                addedBy: currentUser.id
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/admin/valid-ids`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(validIDData)
+                });
+
+                const data = await response.json();
+                
+                if (data.ok) {
+                    showToast('Valid ID added successfully!');
+                    closeModal('validIDModal');
+                    loadValidIDs();
+                } else {
+                    showToast(data.msg || 'Failed to add valid ID', 'error');
+                }
+            } catch (error) {
+                showToast('Error: ' + error.message, 'error');
+            }
+        };
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast show' + (type === 'error' ? ' error' : '');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('eduface_user');
+                window.location.href = 'admin_login.html';
+            }
+        }
+    </script>
+</body>
+</html>
